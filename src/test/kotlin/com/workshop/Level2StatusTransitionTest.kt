@@ -1,7 +1,9 @@
 package com.workshop
 
+import com.workshop.data.SampleData
 import com.workshop.models.OrderStatus
 import com.workshop.services.OrderService
+import org.junit.jupiter.api.BeforeEach
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -17,6 +19,24 @@ import kotlin.test.assertTrue
  *   2. OrderService.updateOrderStatus() updates orders properly
  */
 class Level2StatusTransitionTest {
+
+    @BeforeEach
+    fun resetOrders() {
+        // Reset order statuses to original values so tests don't affect each other
+        val statusMap = mapOf(
+            "order-1" to OrderStatus.Placed,
+            "order-2" to OrderStatus.Preparing,
+            "order-3" to OrderStatus.OutForDelivery,
+            "order-4" to OrderStatus.Delivered,
+            "order-5" to OrderStatus.Placed,
+            "order-6" to OrderStatus.Cancelled
+        )
+        SampleData.orders.forEachIndexed { index, order ->
+            statusMap[order.id]?.let { originalStatus ->
+                SampleData.orders[index] = order.copy(status = originalStatus)
+            }
+        }
+    }
 
     // --- canTransitionTo() tests ---
 
