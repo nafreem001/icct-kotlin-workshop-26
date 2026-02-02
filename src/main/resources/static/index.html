@@ -545,30 +545,63 @@ function progressTracker() {
       } catch {}
 
       await Promise.all([
-        check(0, () => apiFetch('/api/restaurants/' + restaurantId + '/menu?maxPrice=500')),
-        check(1, () => apiFetch('/api/orders/' + orderId + '/total')),
+        // 1A: Menu filter - must test with dietary param (triggers null-safety bug)
+        //     AND verify price filter returns correct items (not inverted)
+        check(0, async () => {
+          // Test dietary filter with items that have null tags (Jollibee)
+          const items = await apiFetch('/api/restaurants/resto-2/menu?dietary=vegetarian');
+          // Also test price filter returns items AT or BELOW price
+          const priceItems = await apiFetch('/api/restaurants/resto-1/menu?maxPrice=100');
+          if (priceItems.some(i => i.price > 100)) throw new Error('Price filter still broken');
+          if (priceItems.length === 0) throw new Error('Price filter returns no items');
+        }),
+        // 1B: Order total - verify the math is correct (price × quantity + discount)
+        check(1, async () => {
+          const data = await apiFetch('/api/orders/order-1/total');
+          const total = parseFloat(data.total);
+          // Order 1: (149×2)+(89×1)+(25×2) = 437 (no discount, under 500)
+          if (Math.abs(total - 437.0) > 1) throw new Error('Total is wrong: ' + total + ', expected 437');
+        }),
+        // 2A: Status transitions - try an invalid transition to test that validation works
+        //     (Delivered → Placed should fail with a specific error, not "Not implemented")
         check(2, async () => {
-          // Just verify the status endpoint exists by doing a GET-like check
-          // We'll attempt a PUT with a safe transition; if server rejects it, that's still "working"
           const orders = await apiFetch('/api/orders');
-          const active = orders.find(o => o.status && NEXT_STATUS[o.status]);
-          if (!active) throw new Error('no active order');
-          const res = await fetch('/api/orders/' + active.id + '/status', {
+          const delivered = orders.find(o => o.status === 'Delivered');
+          if (!delivered) throw new Error('no delivered order');
+          const res = await fetch('/api/orders/' + delivered.id + '/status', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ newStatus: NEXT_STATUS[active.status] })
+            body: JSON.stringify({ newStatus: 'Placed' })
           });
-          if (!res.ok) {
-            const body = await res.text();
-            // 400 means endpoint exists but logic issue - could be partially implemented
-            // 404/405 means not implemented
-            if (res.status === 404 || res.status === 405) throw new Error('not implemented');
-            // Otherwise it exists
+          const body = await res.json();
+          // Should fail, but with a transition error (not "Not implemented")
+          if (body.error && body.error.includes('Not implemented')) throw new Error('Not implemented yet');
+          if (body.error && body.error.includes('Cannot transition')) {
+            // This means canTransitionTo() works correctly! The endpoint is implemented.
+            return;
           }
+          // If it somehow succeeded (bad), or returned unexpected error
+          if (res.ok) throw new Error('Should have rejected Delivered→Placed');
         }),
-        check(3, () => apiFetch('/api/orders/' + orderId + '/delivery-fee')),
-        check(4, () => apiFetch('/api/restaurants/search?cuisine=Filipino')),
-        check(5, () => apiFetch('/api/analytics/summary')),
+        // 2B: Delivery fee - must return a valid fee result with distance > 0
+        check(3, async () => {
+          const data = await apiFetch('/api/orders/order-1/delivery-fee');
+          if (!data.distanceKm && !data.distance) throw new Error('No distance in response');
+          if (data.fee === undefined && data.deliveryFee === undefined) throw new Error('No fee in response');
+        }),
+        // 3A: Search - must return actual results (not empty)
+        check(4, async () => {
+          const results = await apiFetch('/api/restaurants/search?cuisine=Filipino');
+          if (!Array.isArray(results) || results.length === 0) throw new Error('Search returned no results');
+          if (!results.every(r => r.cuisine === 'Filipino')) throw new Error('Search filter not working');
+        }),
+        // 3B: Analytics - must have non-zero values
+        check(5, async () => {
+          const data = await apiFetch('/api/analytics/summary');
+          if (!data.totalOrders || data.totalOrders === 0) throw new Error('No order count');
+          if (!data.totalRevenue || data.totalRevenue === 0) throw new Error('No revenue');
+          if (!data.topItems || data.topItems.length === 0) throw new Error('No top items');
+        }),
       ]);
     }
   };
