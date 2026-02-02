@@ -1,0 +1,97 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run Server",
+      "type": "shell",
+      "command": "./gradlew",
+      "args": ["run"],
+      "windows": {
+        "command": "gradlew.bat",
+        "args": ["run"]
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Run All Tests",
+      "type": "shell",
+      "command": "./gradlew",
+      "args": ["test"],
+      "windows": {
+        "command": "gradlew.bat",
+        "args": ["test"]
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test Level 1A",
+      "type": "shell",
+      "command": "./gradlew",
+      "args": ["test", "--tests", "com.workshop.Level1MenuFilterTest"],
+      "windows": {
+        "command": "gradlew.bat",
+        "args": ["test", "--tests", "com.workshop.Level1MenuFilterTest"]
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test Level 1B",
+      "type": "shell",
+      "command": "./gradlew",
+      "args": ["test", "--tests", "com.workshop.Level1OrderTotalTest"],
+      "windows": {
+        "command": "gradlew.bat",
+        "args": ["test", "--tests", "com.workshop.Level1OrderTotalTest"]
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test Level 2A",
+      "type": "shell",
+      "command": "./gradlew",
+      "args": ["test", "--tests", "com.workshop.Level2StatusTransitionTest"],
+      "windows": {
+        "command": "gradlew.bat",
+        "args": ["test", "--tests", "com.workshop.Level2StatusTransitionTest"]
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test Level 2B",
+      "type": "shell",
+      "command": "./gradlew",
+      "args": ["test", "--tests", "com.workshop.Level2DeliveryFeeTest"],
+      "windows": {
+        "command": "gradlew.bat",
+        "args": ["test", "--tests", "com.workshop.Level2DeliveryFeeTest"]
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test Level 3A",
+      "type": "shell",
+      "command": "./gradlew",
+      "args": ["test", "--tests", "com.workshop.Level3SearchTest"],
+      "windows": {
+        "command": "gradlew.bat",
+        "args": ["test", "--tests", "com.workshop.Level3SearchTest"]
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test Level 3B",
+      "type": "shell",
+      "command": "./gradlew",
+      "args": ["test", "--tests", "com.workshop.Level3AnalyticsTest"],
+      "windows": {
+        "command": "gradlew.bat",
+        "args": ["test", "--tests", "com.workshop.Level3AnalyticsTest"]
+      },
+      "problemMatcher": []
+    }
+  ]
+}

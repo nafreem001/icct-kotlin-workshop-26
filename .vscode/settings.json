@@ -1,0 +1,9 @@
+{
+  "editor.tabSize": 4,
+  "editor.insertSpaces": true,
+  "files.encoding": "utf8",
+  "files.eol": "\n",
+  "editor.formatOnSave": true,
+  "kotlin.languageServer.enabled": true,
+  "kotlin.compiler.jvm.target": "21"
+}
