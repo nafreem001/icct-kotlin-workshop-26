@@ -55,6 +55,25 @@ When you open the project in VS Code, you will be prompted to install recommende
 
 7. **Confirm it works.** You should see the dashboard with mostly red indicators. That is expected -- your job during the workshop is to turn them green.
 
+## How to Iterate
+
+There is **no hot reloading** -- after editing code, you need to restart the server to see your changes.
+
+1. **Edit** your code in VS Code
+2. **Stop** the running server with `Ctrl + C` in the terminal
+3. **Restart** the server with `./gradlew run` (or `gradlew.bat run` on Windows)
+4. **Refresh** the dashboard in your browser and click **"Re-check After Server Restart"** to see updated progress
+
+Alternatively, you can verify your work by running tests (no server restart needed):
+
+```bash
+./gradlew test --tests "com.workshop.Level1MenuFilterTest"
+```
+
+Tests run against your code directly, so they always reflect your latest changes.
+
+---
+
 ## Running Tests
 
 Run tests for a specific level to check your progress:

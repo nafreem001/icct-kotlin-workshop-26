@@ -24,6 +24,17 @@ To start the API server and see the live dashboard:
 
 Then open [http://localhost:8080/](http://localhost:8080/) in your browser to see the dashboard.
 
+### How to Iterate
+
+There is **no hot reloading**. After you edit code, you must restart the server to see your changes:
+
+1. **Edit** your code in VS Code
+2. **Stop** the server with `Ctrl + C`
+3. **Restart** with `./gradlew run` (or `gradlew.bat run` on Windows)
+4. **Refresh** the browser and click **"Re-check After Server Restart"**
+
+**Tip:** You can also run tests without restarting the server -- tests always use your latest code.
+
 ---
 
 ## Level 1: Bug Hunt (Kotlin Basics)

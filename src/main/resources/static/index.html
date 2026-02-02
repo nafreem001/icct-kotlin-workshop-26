@@ -109,7 +109,7 @@
         <button @click="checkAll()"
           class="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium rounded-lg transition-colors">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-          Refresh Progress
+          Re-check After Server Restart
         </button>
       </div>
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
@@ -302,10 +302,16 @@
         </div>
       </div>
 
-      <!-- Error -->
-      <div x-show="error" class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+      <!-- Not implemented error -->
+      <div x-show="notImplemented" class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
         <p class="text-amber-800 font-medium">Complete Exercise 2B: Delivery Fee to unlock this!</p>
         <p class="text-amber-600 text-sm mt-1" x-text="error"></p>
+      </div>
+
+      <!-- Business error (e.g. no address) -->
+      <div x-show="error && !notImplemented" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+        <p class="text-red-800 font-medium">Delivery Fee Error</p>
+        <p class="text-red-600 text-sm mt-1" x-text="error"></p>
       </div>
 
       <div x-show="ordersError" class="bg-amber-50 border border-amber-200 rounded-lg p-4">
@@ -352,7 +358,7 @@
             placeholder="e.g. 4.0">
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-500 mb-1">Max Delivery Time (min)</label>
+          <label class="block text-xs font-medium text-slate-500 mb-1">Max Delivery Time (minutes)</label>
           <input type="number" x-model="maxDeliveryTime"
             class="w-36 px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
             placeholder="e.g. 45">
@@ -739,6 +745,7 @@ function deliverySection() {
     selectedOrderId: '',
     fee: null,
     error: '',
+    notImplemented: false,
     ordersError: '',
     async loadOrders() {
       try {
@@ -748,13 +755,15 @@ function deliverySection() {
       }
     },
     async fetchFee() {
-      if (!this.selectedOrderId) { this.fee = null; this.error = ''; return; }
+      if (!this.selectedOrderId) { this.fee = null; this.error = ''; this.notImplemented = false; return; }
       this.error = '';
+      this.notImplemented = false;
       this.fee = null;
       try {
         this.fee = await apiFetch('/api/orders/' + this.selectedOrderId + '/delivery-fee');
       } catch (e) {
         this.error = e.message;
+        this.notImplemented = e.message && e.message.toLowerCase().includes('not implemented');
       }
     }
   };
