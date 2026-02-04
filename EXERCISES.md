@@ -1,6 +1,6 @@
 # Exercises - Food Delivery API Workshop
 
-Welcome to the **Kotlin Food Delivery API Workshop**! Over the next 4 hours, you will build and fix a food delivery backend using **Kotlin** and **Ktor**. The workshop is structured into **4 progressive levels** -- starting from reading and fixing existing code, moving through guided implementation, then tackling open-ended challenges, and finally creating your own feature from scratch. Each exercise has automated tests so you can verify your work as you go. Take your time, ask questions, and have fun!
+Welcome to the **Kotlin Food Delivery API Workshop**! Over the next 2 hours, you will build and fix a food delivery backend using **Kotlin** and **Ktor**. The workshop is structured into **4 progressive levels** -- starting from reading and fixing existing code, moving through guided implementation, then tackling open-ended challenges, and finally creating your own feature from scratch. Each exercise has automated tests so you can verify your work as you go. Take your time, ask questions, and have fun!
 
 ---
 
@@ -24,16 +24,20 @@ To start the API server and see the live dashboard:
 
 Then open [http://localhost:8080/](http://localhost:8080/) in your browser to see the dashboard.
 
-### How to Iterate
+### How to Iterate (Auto-Reload)
 
-There is **no hot reloading**. After you edit code, you must restart the server to see your changes:
+The project supports **auto-reload** so you do NOT need to restart the server after every change.
 
-1. **Edit** your code in VS Code
-2. **Stop** the server with `Ctrl + C`
-3. **Restart** with `./gradlew run` (or `gradlew.bat run` on Windows)
-4. **Refresh** the browser and click **"Re-check After Server Restart"**
+Open **two terminals** in VS Code (`Ctrl + `` ` then click the **+** button):
 
-**Tip:** You can also run tests without restarting the server -- tests always use your latest code.
+| Terminal | Command | Purpose |
+|---|---|---|
+| Terminal 1 | `./gradlew run` | Runs the server |
+| Terminal 2 | `./gradlew -t build` | Watches files and recompiles on save |
+
+Then just **edit → save → refresh the browser**. The server auto-reloads with your changes.
+
+**Tip:** You can also run tests directly -- they always use your latest saved code, no server needed.
 
 ---
 

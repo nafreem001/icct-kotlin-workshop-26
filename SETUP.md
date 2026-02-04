@@ -55,22 +55,40 @@ When you open the project in VS Code, you will be prompted to install recommende
 
 7. **Confirm it works.** You should see the dashboard with mostly red indicators. That is expected -- your job during the workshop is to turn them green.
 
-## How to Iterate
+## How to Iterate (Auto-Reload)
 
-There is **no hot reloading** -- after editing code, you need to restart the server to see your changes.
+The project supports **auto-reload** -- you do NOT need to restart the server after every code change. Here is how to set it up:
+
+### Open two terminals in VS Code
+
+**Terminal 1 -- Run the server:**
+```bash
+./gradlew run
+```
+
+**Terminal 2 -- Continuous build (watches for changes):**
+```bash
+./gradlew -t build
+```
+
+The `-t` flag tells Gradle to watch your source files. When you save a file, Gradle recompiles automatically, and Ktor detects the new classes and reloads the application.
+
+### Your workflow
 
 1. **Edit** your code in VS Code
-2. **Stop** the running server with `Ctrl + C` in the terminal
-3. **Restart** the server with `./gradlew run` (or `gradlew.bat run` on Windows)
-4. **Refresh** the dashboard in your browser and click **"Re-check After Server Restart"** to see updated progress
+2. **Save** the file (`Ctrl + S`)
+3. **Wait** a few seconds for Terminal 2 to recompile
+4. **Refresh** the dashboard in your browser and click **"Re-check Progress"**
 
-Alternatively, you can verify your work by running tests (no server restart needed):
+### Alternative: Run tests
+
+You can also verify your work by running tests (no server needed):
 
 ```bash
 ./gradlew test --tests "com.workshop.Level1MenuFilterTest"
 ```
 
-Tests run against your code directly, so they always reflect your latest changes.
+Tests always use your latest saved code.
 
 ---
 

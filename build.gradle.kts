@@ -11,6 +11,10 @@ application {
     mainClass.set("com.workshop.ApplicationKt")
 }
 
+tasks.named<JavaExec>("run") {
+    jvmArgs("-Dio.ktor.development=true")
+}
+
 repositories {
     mavenCentral()
 }

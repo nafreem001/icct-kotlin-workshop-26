@@ -16,9 +16,13 @@ import io.ktor.server.routing.*
 import kotlinx.serialization.json.Json
 
 fun main() {
-    embeddedServer(Netty, port = 8080, host = "0.0.0.0") {
-        configureApp()
-    }.start(wait = true)
+    embeddedServer(
+        Netty,
+        port = 8080,
+        host = "0.0.0.0",
+        watchPaths = listOf("classes", "resources"),
+        module = Application::configureApp
+    ).start(wait = true)
 }
 
 fun Application.configureApp() {
