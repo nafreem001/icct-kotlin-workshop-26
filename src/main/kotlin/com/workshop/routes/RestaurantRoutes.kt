@@ -5,6 +5,10 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class OpenStatusResponse(val restaurantId: String, val time: String, val isOpen: Boolean)
 
 fun Route.restaurantRoutes() {
     route("/restaurants") {
@@ -61,11 +65,7 @@ fun Route.restaurantRoutes() {
             val result = MenuService.isOpenAt(id, time)
             result.fold(
                 onSuccess = { isOpen ->
-                    call.respond(mapOf(
-                        "restaurantId" to id,
-                        "time" to time,
-                        "isOpen" to isOpen
-                    ))
+                    call.respond(OpenStatusResponse(restaurantId = id, time = time, isOpen = isOpen))
                 },
                 onFailure = { error ->
                     call.respond(

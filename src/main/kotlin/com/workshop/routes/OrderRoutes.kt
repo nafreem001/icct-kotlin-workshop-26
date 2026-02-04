@@ -11,6 +11,7 @@ import io.ktor.server.routing.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.*
 
 @Serializable
 data class StatusUpdateRequest(val newStatus: String)
@@ -43,7 +44,22 @@ fun Route.orderRoutes() {
             val summary = OrderService.getOrderSummary(id) ?: return@get call.respond(
                 HttpStatusCode.NotFound, mapOf("error" to "Order not found: $id")
             )
-            call.respond(summary)
+            val json = buildJsonObject {
+                put("orderId", summary["orderId"] as String)
+                put("grandTotal", summary["grandTotal"] as String)
+                putJsonArray("items") {
+                    @Suppress("UNCHECKED_CAST")
+                    for (item in summary["items"] as List<Map<String, Any>>) {
+                        addJsonObject {
+                            put("name", item["name"] as String)
+                            put("quantity", (item["quantity"] as Int))
+                            put("unitPrice", item["unitPrice"] as String)
+                            put("subtotal", item["subtotal"] as String)
+                        }
+                    }
+                }
+            }
+            call.respond(json)
         }
 
         // GET /orders/{id}/total

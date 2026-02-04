@@ -256,6 +256,12 @@
               <span x-show="order._totalError" class="ml-auto">
                 <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">1B: Order Total</span>
               </span>
+              <button
+                x-show="order.status && !['Delivered','Cancelled'].includes(order.status)"
+                @click="cancelOrder(order)"
+                class="ml-auto px-3 py-1 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-medium rounded-lg transition-colors border border-red-200">
+                Cancel Order
+              </button>
             </div>
             <div class="flex flex-wrap gap-2 mb-3">
               <template x-for="item in (order.items || [])" :key="item.menuItemName">
@@ -270,12 +276,6 @@
                 @click="advanceStatus(order)"
                 class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors">
                 Advance Status <span class="opacity-75">2A</span>
-              </button>
-              <button
-                x-show="order.status && !['Delivered','Cancelled'].includes(order.status)"
-                @click="cancelOrder(order)"
-                class="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-xs font-medium rounded-lg transition-colors">
-                Cancel
               </button>
               <button @click="viewSummary(order)"
                 class="px-3 py-1.5 bg-slate-600 hover:bg-slate-700 text-white text-xs font-medium rounded-lg transition-colors">

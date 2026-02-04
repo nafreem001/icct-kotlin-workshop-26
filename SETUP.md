@@ -122,8 +122,36 @@ Run tests for a specific level to check your progress:
 | Problem | Solution |
 |---------|----------|
 | `java: command not found` | Make sure Java is installed and `JAVA_HOME` is set. Restart your terminal after installing. |
-| `Port 8080 already in use` | Close whatever is using that port, or change the port in `Application.kt`. |
+| `Port 8080 already in use` | A previous server is still running. See "Killing a stuck server" below. |
 | Gradle download is slow | The first run downloads dependencies. Be patient -- subsequent runs are much faster. |
 | Tests are failing | That is expected! The exercises start with failing tests. Your job is to make them pass. |
 | Hot reload not working | Make sure `./gradlew -t classes` is running in a second terminal. Check Terminal 2 for compilation errors. |
 | Debugger won't attach | Make sure the server is running first (`./gradlew run`). The debug port is 5005. |
+| `Address already in use` on port 5005 | A previous server process is still running. See "Killing a stuck server" below. |
+
+### Killing a stuck server
+
+If you close a terminal window without pressing `Ctrl + C` first, the server process may keep running in the background and hold onto ports 8080 and 5005. The next time you try `./gradlew run` you will see an "Address already in use" error.
+
+**Windows (PowerShell):**
+```powershell
+# Find what is using the port
+netstat -ano | findstr :5005
+
+# Kill the process by its PID (the last number in the output)
+Stop-Process -Id <PID> -Force
+```
+
+**Windows (Command Prompt):**
+```cmd
+netstat -ano | findstr :5005
+taskkill /F /PID <PID>
+```
+
+**Mac / Linux:**
+```bash
+lsof -i :5005
+kill -9 <PID>
+```
+
+After killing the process, `./gradlew run` should start normally. To avoid this, always stop the server with `Ctrl + C` in the terminal before closing it.
