@@ -74,7 +74,7 @@ It does not work correctly. Read the function, read the tests, and fix it.
 | **Test** | `./gradlew test --tests "com.workshop.Level1OrderTotalTest"` |
 | **Endpoint** | `GET /api/orders/{id}/total` |
 
-The `calculateTotal()` function should calculate the total cost of an order. Each order has line items with a unit price and quantity. The total is calculated as `unitPrice × quantity` for each item, summed together. If the subtotal exceeds ₱500, a 10% discount is applied to the entire order. Read the function and the tests to find the bugs.
+The `calculateTotal()` function should calculate the total cost of an order. Each order has line items with a unit price and quantity. If the subtotal exceeds ₱500, a 10% discount is applied to the entire order. Read the function and the tests to find the bugs.
 
 ---
 
