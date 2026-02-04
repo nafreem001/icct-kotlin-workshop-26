@@ -44,6 +44,25 @@ After you save a file, Terminal 2 recompiles and the server automatically picks 
 
 ---
 
+## Recommended Path
+
+If you are short on time, focus on the exercises below. They cover the widest range of Kotlin concepts without overlap. Complete these and then move on to Level 4, where you can build your own feature solo or with a group.
+
+| Priority | Exercise | Kotlin Concepts |
+|----------|----------|-----------------|
+| 1 | **1A** Menu Filtering Bug | Collections, `filter`, null safety |
+| 2 | **1B** Order Total Bug | `sumOf`, arithmetic, conditional logic |
+| 3 | **1C** Restaurant Hours Bug | Null safety, time comparison, edge cases |
+| 4 | **1D** Order Summary Bug | String formatting, iteration, `map` |
+| 5 | **2A** Order Status Transitions | Sealed classes, `when` expressions |
+| 6 | **2B** Delivery Fee Calculator | Extension functions, `Result` type |
+| 7 | **2D** Prep Simulation | Coroutines, `launch`, `delay`, concurrency |
+| 8 | **3A or 3B or 3C** (pick one) | Collection pipelines, `flatMap`, `groupBy` |
+
+All of Level 1 builds core Kotlin fundamentals -- try to finish those first. After that, 2A, 2B, and 2D each introduce a different language feature. Exercise 2C (Loyalty Tiers) is good extra practice but overlaps with 2A in concepts. Level 3 exercises all focus on collections -- pick whichever sounds most interesting.
+
+---
+
 ## Level 1: Bug Hunt (Kotlin Basics)
 
 **Goal:** Read existing code, find and fix bugs. You will learn about **data classes**, **null safety**, and **collection operations**.
