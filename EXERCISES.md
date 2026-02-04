@@ -74,7 +74,7 @@ It does not work correctly. Read the function, read the tests, and fix it.
 | **Test** | `./gradlew test --tests "com.workshop.Level1OrderTotalTest"` |
 | **Endpoint** | `GET /api/orders/{id}/total` |
 
-The `calculateTotal()` function should calculate the total cost of an order. Each order has line items with a unit price and quantity. There may be a discount that applies when the subtotal exceeds a certain amount. Read the function and the tests to understand the expected behavior, then fix the bugs.
+The `calculateTotal()` function should calculate the total cost of an order. Each order has line items with a unit price and quantity. The total is calculated as `unitPrice × quantity` for each item, summed together. If the subtotal exceeds ₱500, a 10% discount is applied to the entire order. Read the function and the tests to find the bugs.
 
 ---
 
@@ -120,14 +120,12 @@ The function has bugs. Read the tests to understand the expected output format, 
 | **Test** | `./gradlew test --tests "com.workshop.Level2StatusTransitionTest"` |
 | **Endpoint** | `PUT /api/orders/{id}/status` with JSON body `{ "status": "Preparing" }` |
 
-An order goes through a lifecycle: it gets placed, prepared, sent out for delivery, and delivered. It can also be cancelled. But not every transition makes sense -- you should not be able to go from `Delivered` back to `Placed`, for example.
+An order goes through a lifecycle: **Placed → Preparing → OutForDelivery → Delivered**. An order can also be **Cancelled** from any active state (Placed, Preparing, or OutForDelivery), but not after it has been Delivered. No other transitions are allowed -- you cannot go backwards.
 
 **Your task:** Look at the `OrderStatus` sealed class and its subclasses. Then:
 
-1. Implement `canTransitionTo()` in `OrderStatus.kt` -- decide which transitions are valid
-2. Implement `updateOrderStatus()` in `OrderService.kt` -- parse the status string, validate the transition, and update the order
-
-Read the test file to understand exactly which transitions should be allowed and which should be rejected.
+1. Implement `canTransitionTo()` in `OrderStatus.kt` -- use a `when` expression to return `true` only for valid transitions
+2. Implement `updateOrderStatus()` in `OrderService.kt` -- parse the status string (e.g., `"Preparing"`) into an `OrderStatus`, call `canTransitionTo()` to validate, and update the order in `SampleData.orders`
 
 ---
 
@@ -141,17 +139,24 @@ Read the test file to understand exactly which transitions should be allowed and
 
 Implement `calculateDeliveryFee()` using **Kotlin extension functions**. The file defines three extension functions that you need to implement first:
 
-- `Order.findRestaurant()` -- look up the restaurant for an order
-- `Order.findCustomer()` -- look up the customer for an order
-- `Double.roundTo(decimals)` -- round a Double to N decimal places
+- `Order.findRestaurant()` -- look up the restaurant matching `this.restaurantId` in `SampleData.restaurants`
+- `Order.findCustomer()` -- look up the customer matching `this.customerId` in `SampleData.customers`
+- `Double.roundTo(decimals)` -- round a Double to N decimal places using `10.0.pow()` and `Math.round()`
 
-Then use these extensions in `calculateDeliveryFee()` to look up the order, customer, and restaurant, calculate the distance, and determine the fee tier.
+Then use these extensions in `calculateDeliveryFee()` to:
+1. Look up the order, customer, and restaurant (return errors if any are missing or the customer has no address)
+2. Get restaurant coordinates from `SampleData.restaurantCoordinates`
+3. Calculate the distance using the provided `distanceInKm()` helper
+4. Apply the fee tier based on distance:
 
-Look at:
-- The `DeliveryFeeResult` data class at the bottom of the file
-- The `distanceInKm()` helper function already provided
-- `SampleData.kt` for restaurant coordinates and customer data
-- The test file for the exact fee tiers and expected behavior
+| Distance | Fee | Tier Label |
+|----------|-----|------------|
+| 0--2 km | Free (₱0) | Free (0-2 km) |
+| 2--5 km | ₱49 | Near (2-5 km) |
+| 5--10 km | ₱99 | Medium (5-10 km) |
+| 10+ km | ₱149 | Far (10+ km) |
+
+5. Return a `DeliveryFeeResult` with the distance rounded to 2 decimal places
 
 ---
 
@@ -165,12 +170,21 @@ Look at:
 
 Implement a loyalty program that assigns customers to tiers based on their order history. Look at `models/LoyaltyTier.kt` for the sealed class hierarchy (Bronze, Silver, Gold, Platinum).
 
+A customer's tier is determined by their order count **or** total spend (whichever qualifies them for the higher tier):
+
+| Tier | Order Count | OR Total Spend | Discount |
+|------|-------------|----------------|----------|
+| Platinum | 25+ orders | ₱10,000+ | 15% |
+| Gold | 10+ orders | ₱5,000+ | 10% |
+| Silver | 3+ orders | ₱1,500+ | 5% |
+| Bronze | default | default | 0% |
+
+Check from highest tier down -- if a customer qualifies for Gold by spend but Bronze by order count, they get Gold.
+
 **Your task:**
 
-1. Implement `calculateTier()` -- use a `when` expression to determine the tier based on the customer's order count and total spend
-2. Implement `getLoyaltyInfo()` -- return a complete loyalty info object with the customer's name, tier, order count, total spend, and discount percentage
-
-Read the test file to understand the tier thresholds.
+1. Implement `calculateTier()` -- get the customer's orders from `SampleData.orders`, calculate order count and total spend (`unitPrice × quantity` for each item), then use a `when` expression to return the appropriate tier
+2. Implement `getLoyaltyInfo()` -- return a `LoyaltyInfo` object with the customer's name, tier, order count, total spend, and discount percentage from the tier
 
 ---
 

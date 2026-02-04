@@ -49,6 +49,14 @@ class Level1RestaurantHoursTest {
     }
 
     @Test
+    fun `late-night restaurant is open just after midnight`() {
+        // Ramen Nagi (resto-4): 22:00 - 02:00
+        val result = MenuService.isOpenAt("resto-4", "00:30")
+        assertTrue(result.isSuccess, "Should succeed for valid restaurant")
+        assertTrue(result.getOrNull() == true, "Should be open at 00:30 (hours: 22:00-02:00)")
+    }
+
+    @Test
     fun `late-night restaurant is open after midnight`() {
         // Ramen Nagi (resto-4): 22:00 - 02:00
         val result = MenuService.isOpenAt("resto-4", "01:00")
