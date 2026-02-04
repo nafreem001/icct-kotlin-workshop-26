@@ -24,18 +24,21 @@ To start the API server and see the live dashboard:
 
 Then open [http://localhost:8080/](http://localhost:8080/) in your browser to see the dashboard.
 
-### How to Iterate (Auto-Reload)
+### How to Iterate (Hot Reload)
 
-The project supports **auto-reload** so you do NOT need to restart the server after every change.
+The server supports **hot reload**. You need two terminals:
 
-Open **two terminals** in VS Code (`Ctrl + `` ` then click the **+** button):
+**Terminal 1** -- Run the server:
+```bash
+./gradlew run
+```
 
-| Terminal | Command | Purpose |
-|---|---|---|
-| Terminal 1 | `./gradlew run` | Runs the server |
-| Terminal 2 | `./gradlew -t build` | Watches files and recompiles on save |
+**Terminal 2** -- Continuous build (auto-recompiles on save):
+```bash
+./gradlew -t classes
+```
 
-Then just **edit → save → refresh the browser**. The server auto-reloads with your changes.
+After you save a file, Terminal 2 recompiles and the server automatically picks up the changes. Refresh your browser to see the result.
 
 **Tip:** You can also run tests directly -- they always use your latest saved code, no server needed.
 
@@ -71,13 +74,41 @@ It does not work correctly. Read the function, read the tests, and fix it.
 | **Test** | `./gradlew test --tests "com.workshop.Level1OrderTotalTest"` |
 | **Endpoint** | `GET /api/orders/{id}/total` |
 
-The `calculateTotal()` function should calculate the total cost of an order. Read the doc comment on the function to understand the business rules, then compare what the code _actually_ does versus what it _should_ do.
+The `calculateTotal()` function should calculate the total cost of an order. Each order has line items with a unit price and quantity. There may be a discount that applies when the subtotal exceeds a certain amount. Read the function and the tests to understand the expected behavior, then fix the bugs.
+
+---
+
+### Exercise 1C: Restaurant Hours Bug
+
+| | |
+|---|---|
+| **File** | `src/main/kotlin/com/workshop/services/MenuService.kt` |
+| **Test** | `./gradlew test --tests "com.workshop.Level1RestaurantHoursTest"` |
+| **Endpoint** | `GET /api/restaurants/{id}/open?time=14:30` |
+
+The `isOpenAt()` function checks whether a restaurant is open at a given time. Restaurants have operating hours stored as open/close times in `HH:mm` format. Some restaurants do not have hours listed, and some are late-night establishments that stay open past midnight.
+
+The function does not handle all these cases correctly. Read the tests to understand the expected behavior, then fix the bugs.
+
+---
+
+### Exercise 1D: Order Summary Bug
+
+| | |
+|---|---|
+| **File** | `src/main/kotlin/com/workshop/services/OrderService.kt` |
+| **Test** | `./gradlew test --tests "com.workshop.Level1OrderSummaryTest"` |
+| **Endpoint** | `GET /api/orders/{id}/summary` |
+
+The `getOrderSummary()` function returns a formatted summary of an order, including each item's name, quantity, unit price, subtotal, and the grand total. All monetary values should be formatted to two decimal places.
+
+The function has bugs. Read the tests to understand the expected output format, then fix them.
 
 ---
 
 ## Level 2: Guided Implementation (Kotlin Features)
 
-**Goal:** Implement new features using **sealed classes**, **`when` expressions**, and **null safety**. The function signatures are provided -- you fill in the logic.
+**Goal:** Implement new features using **sealed classes**, **`when` expressions**, **extension functions**, **null safety**, and **coroutines**. The function signatures are provided -- you fill in the logic.
 
 ---
 
@@ -100,7 +131,7 @@ Read the test file to understand exactly which transitions should be allowed and
 
 ---
 
-### Exercise 2B: Delivery Fee Calculator
+### Exercise 2B: Delivery Fee Calculator (with Extension Functions)
 
 | | |
 |---|---|
@@ -108,13 +139,57 @@ Read the test file to understand exactly which transitions should be allowed and
 | **Test** | `./gradlew test --tests "com.workshop.Level2DeliveryFeeTest"` |
 | **Endpoint** | `GET /api/orders/{id}/delivery-fee` |
 
-Implement `calculateDeliveryFee()`. Given an order, figure out how far the restaurant is from the customer and charge accordingly.
+Implement `calculateDeliveryFee()` using **Kotlin extension functions**. The file defines three extension functions that you need to implement first:
+
+- `Order.findRestaurant()` -- look up the restaurant for an order
+- `Order.findCustomer()` -- look up the customer for an order
+- `Double.roundTo(decimals)` -- round a Double to N decimal places
+
+Then use these extensions in `calculateDeliveryFee()` to look up the order, customer, and restaurant, calculate the distance, and determine the fee tier.
 
 Look at:
-- The `DeliveryFeeResult` data class at the bottom of the file to understand what you need to return
+- The `DeliveryFeeResult` data class at the bottom of the file
 - The `distanceInKm()` helper function already provided
 - `SampleData.kt` for restaurant coordinates and customer data
 - The test file for the exact fee tiers and expected behavior
+
+---
+
+### Exercise 2C: Customer Loyalty Tiers
+
+| | |
+|---|---|
+| **File** | `src/main/kotlin/com/workshop/services/LoyaltyService.kt` |
+| **Test** | `./gradlew test --tests "com.workshop.Level2LoyaltyTest"` |
+| **Endpoint** | `GET /api/customers/{id}/loyalty` |
+
+Implement a loyalty program that assigns customers to tiers based on their order history. Look at `models/LoyaltyTier.kt` for the sealed class hierarchy (Bronze, Silver, Gold, Platinum).
+
+**Your task:**
+
+1. Implement `calculateTier()` -- use a `when` expression to determine the tier based on the customer's order count and total spend
+2. Implement `getLoyaltyInfo()` -- return a complete loyalty info object with the customer's name, tier, order count, total spend, and discount percentage
+
+Read the test file to understand the tier thresholds.
+
+---
+
+### Exercise 2D: Order Preparation Simulation (Coroutines)
+
+| | |
+|---|---|
+| **File** | `src/main/kotlin/com/workshop/services/PrepService.kt` |
+| **Test** | `./gradlew test --tests "com.workshop.Level2PrepSimulationTest"` |
+| **Endpoints** | `POST /api/orders/{id}/prepare` and `GET /api/orders/{id}/prep-status` |
+
+Simulate kitchen preparation using Kotlin coroutines. When an order is started, each item should be prepared **concurrently** (not one at a time).
+
+**Your task:**
+
+1. Implement `startPreparation()` -- launch a coroutine for each line item using `launch` inside a `CoroutineScope`. Each item takes a simulated delay proportional to its quantity. Track progress in a `ConcurrentHashMap`.
+2. Implement `getPrepStatus()` -- return the current progress (total items, completed items, whether still in progress).
+
+The key concept: if you have 6 items and each takes 500ms, concurrent preparation should complete in ~500ms total (not 3000ms sequentially).
 
 ---
 
@@ -148,6 +223,24 @@ Implement `getAnalyticsSummary()`. Aggregate order data into a summary. The `Ana
 
 ---
 
+### Exercise 3C: Order Recommendations
+
+| | |
+|---|---|
+| **File** | `src/main/kotlin/com/workshop/services/RecommendationService.kt` |
+| **Test** | `./gradlew test --tests "com.workshop.Level3RecommendationsTest"` |
+| **Endpoint** | `GET /api/customers/{id}/recommendations` |
+
+Implement `getRecommendations()`. Given a customer, analyze their past orders and recommend menu items they have not tried yet. Use collection operations like `flatMap`, `groupBy`, `sortedByDescending`, `distinctBy`, and `filter` to find relevant suggestions.
+
+The function should:
+- Not recommend items the customer has already ordered
+- Prioritize items popular with customers who have similar tastes
+- Fall back to untried items from restaurants the customer has visited
+- Respect the `limit` parameter
+
+---
+
 ## Level 4: Create Your Own
 
 Congratulations on making it this far! In this final level, there are no predefined tests or templates. **Design and implement your own feature** for the food delivery API.
@@ -156,7 +249,6 @@ Congratulations on making it this far! In this final level, there are no predefi
 
 - **Promo Code / Discount System** -- Apply promo codes like `WELCOME20` for 20% off, validate expiration and usage limits
 - **Customer Favorites / Reorder** -- Let customers save favorite items and quickly reorder past meals
-- **Restaurant Recommendations** -- Suggest restaurants based on a customer's order history and preferences
 - **Delivery Time Estimation** -- Estimate delivery time based on distance, restaurant prep time, and current order volume
 - **Rating & Review System** -- Let customers rate and review restaurants and menu items after delivery
 
@@ -215,6 +307,24 @@ val label = when {
 }
 ```
 
+### Extension Functions
+
+```kotlin
+// Add a method to an existing class
+fun String.initials(): String =
+    this.split(" ").map { it.first().uppercase() }.joinToString("")
+
+"Juan dela Cruz".initials()  // "JDC"
+
+// Extension on Double
+fun Double.roundTo(decimals: Int): Double {
+    val factor = 10.0.pow(decimals)
+    return Math.round(this * factor) / factor
+}
+
+3.14159.roundTo(2)  // 3.14
+```
+
 ### Collection Operations
 
 ```kotlin
@@ -246,6 +356,29 @@ grouped.mapValues { (_, v) -> v.size }
 
 // associate -- create a map
 items.associate { it to it.length }
+```
+
+### Coroutines
+
+```kotlin
+import kotlinx.coroutines.*
+
+// Launch concurrent tasks
+val scope = CoroutineScope(Dispatchers.Default)
+scope.launch {
+    // This runs concurrently
+    delay(500)  // Non-blocking sleep
+    println("Done!")
+}
+
+// Launch multiple tasks and wait for all
+val jobs = items.map { item ->
+    scope.launch {
+        delay(500)
+        processItem(item)
+    }
+}
+jobs.forEach { it.join() }  // Wait for all to complete
 ```
 
 ### String Templates

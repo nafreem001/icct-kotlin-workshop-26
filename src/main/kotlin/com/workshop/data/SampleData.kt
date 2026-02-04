@@ -20,7 +20,8 @@ object SampleData {
                 MenuItem("mi-4", "Halo-Halo", "Classic Filipino shaved ice dessert", 89.0, "Desserts", listOf("vegetarian")),
                 MenuItem("mi-5", "Palabok", "Rice noodles with shrimp sauce", 79.0, "Noodles"),
                 MenuItem("mi-6", "Extra Rice", "Plain steamed rice", 25.0, "Sides", listOf("vegetarian", "vegan", "gluten-free"))
-            )
+            ),
+            operatingHours = OperatingHours("09:00", "21:00")
         ),
         Restaurant(
             id = "resto-2",
@@ -38,7 +39,8 @@ object SampleData {
                 MenuItem("jb-5", "Burger Steak", "Beef patties with mushroom gravy and rice", 80.0, "Mains"),
                 MenuItem("jb-6", "Peach Mango Pie", "Crispy fried pie with peach mango filling", 39.0, "Desserts", listOf("vegetarian")),
                 MenuItem("jb-7", "Palabok Fiesta", "Rice noodles with garlic, shrimp, and egg", 85.0, "Noodles")
-            )
+            ),
+            operatingHours = OperatingHours("06:00", "23:00")
         ),
         Restaurant(
             id = "resto-3",
@@ -56,7 +58,8 @@ object SampleData {
                 MenuItem("mesa-5", "Sizzling Tofu", "Crispy tofu with special sauce", 195.0, "Vegetable", listOf("vegetarian")),
                 MenuItem("mesa-6", "Bibingka", "Traditional rice cake", 155.0, "Desserts", listOf("vegetarian", "gluten-free")),
                 MenuItem("mesa-7", "Leche Flan", "Classic caramel custard", 175.0, "Desserts", listOf("vegetarian", "gluten-free"))
-            )
+            ),
+            operatingHours = OperatingHours("11:00", "22:00")
         ),
         Restaurant(
             id = "resto-4",
@@ -73,7 +76,8 @@ object SampleData {
                 MenuItem("rn-4", "Black King", "Squid ink pork ramen", 410.0, "Ramen"),
                 MenuItem("rn-5", "Gyoza (5pcs)", "Pan-fried dumplings", 180.0, "Sides"),
                 MenuItem("rn-6", "Vegetarian Ramen", "Mushroom-based broth with tofu", 350.0, "Ramen", listOf("vegetarian"))
-            )
+            ),
+            operatingHours = OperatingHours("22:00", "02:00") // Late-night: crosses midnight
         ),
         Restaurant(
             id = "resto-5",

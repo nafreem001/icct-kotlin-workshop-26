@@ -3,6 +3,9 @@ package com.workshop.models
 import kotlinx.serialization.Serializable
 
 @Serializable
+data class OperatingHours(val open: String, val close: String) // "HH:mm" format
+
+@Serializable
 data class Restaurant(
     val id: String,
     val name: String,
@@ -11,7 +14,8 @@ data class Restaurant(
     val address: String,
     val deliveryTimeMinutes: Int,
     val minimumOrder: Double,
-    val menu: List<MenuItem> = emptyList()
+    val menu: List<MenuItem> = emptyList(),
+    val operatingHours: OperatingHours? = null
 )
 
 @Serializable

@@ -11,21 +11,32 @@ object OrderService {
     fun getOrderById(id: String): Order? =
         SampleData.orders.find { it.id == id }
 
-    /**
-     * Calculates the total price of an order.
-     *
-     * Business rules:
-     * - Total = sum of (unitPrice × quantity) for each line item
-     * - If the subtotal is over ₱500, apply a 10% discount
-     * - Return the final total
-     *
-     * @return The order total, or null if order not found
-     */
     fun calculateTotal(orderId: String): Double? {
         val order = getOrderById(orderId) ?: return null
 
         val subtotal = order.items.sumOf { it.unitPrice }
         return subtotal
+    }
+
+    fun getOrderSummary(orderId: String): Map<String, Any>? {
+        val order = getOrderById(orderId) ?: return null
+
+        val items = order.items.drop(1).map { item ->
+            mapOf(
+                "name" to item.menuItemName,
+                "quantity" to item.quantity,
+                "unitPrice" to item.unitPrice.toString(),
+                "subtotal" to (item.unitPrice * item.quantity).toString()
+            )
+        }
+
+        val grandTotal = order.items.sumOf { it.unitPrice }
+
+        return mapOf(
+            "orderId" to orderId,
+            "items" to items,
+            "grandTotal" to grandTotal.toString()
+        )
     }
 
     // Exercise 2A: Implement this method

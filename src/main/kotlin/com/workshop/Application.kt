@@ -1,6 +1,7 @@
 package com.workshop
 
 import com.workshop.routes.analyticsRoutes
+import com.workshop.routes.customerRoutes
 import com.workshop.routes.orderRoutes
 import com.workshop.routes.restaurantRoutes
 import io.ktor.http.*
@@ -17,9 +18,7 @@ import kotlinx.serialization.json.Json
 
 fun main() {
     embeddedServer(
-        Netty,
-        port = 8080,
-        host = "0.0.0.0",
+        Netty, port = 8080, host = "0.0.0.0",
         watchPaths = listOf("classes", "resources"),
         module = Application::configureApp
     ).start(wait = true)
@@ -53,6 +52,7 @@ fun Application.configureApp() {
         route("/api") {
             restaurantRoutes()
             orderRoutes()
+            customerRoutes()
             analyticsRoutes()
         }
 

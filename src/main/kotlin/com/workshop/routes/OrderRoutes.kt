@@ -2,11 +2,14 @@ package com.workshop.routes
 
 import com.workshop.services.DeliveryService
 import com.workshop.services.OrderService
+import com.workshop.services.PrepService
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -29,6 +32,18 @@ fun Route.orderRoutes() {
                 HttpStatusCode.NotFound, mapOf("error" to "Order not found: $id")
             )
             call.respond(order)
+        }
+
+        // GET /orders/{id}/summary
+        // Level 1D: The summary has bugs!
+        get("/{id}/summary") {
+            val id = call.parameters["id"] ?: return@get call.respond(
+                HttpStatusCode.BadRequest, mapOf("error" to "Missing order ID")
+            )
+            val summary = OrderService.getOrderSummary(id) ?: return@get call.respond(
+                HttpStatusCode.NotFound, mapOf("error" to "Order not found: $id")
+            )
+            call.respond(summary)
         }
 
         // GET /orders/{id}/total
@@ -76,6 +91,36 @@ fun Route.orderRoutes() {
                     )
                 }
             )
+        }
+
+        // POST /orders/{id}/prepare
+        // Level 2D: Students implement PrepService with coroutines
+        post("/{id}/prepare") {
+            val id = call.parameters["id"] ?: return@post call.respond(
+                HttpStatusCode.BadRequest, mapOf("error" to "Missing order ID")
+            )
+            val result = PrepService.startPreparation(id, CoroutineScope(Dispatchers.Default))
+            result.fold(
+                onSuccess = { progress -> call.respond(progress) },
+                onFailure = { error ->
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        mapOf("error" to (error.message ?: "Unknown error"))
+                    )
+                }
+            )
+        }
+
+        // GET /orders/{id}/prep-status
+        // Level 2D: Check preparation progress
+        get("/{id}/prep-status") {
+            val id = call.parameters["id"] ?: return@get call.respond(
+                HttpStatusCode.BadRequest, mapOf("error" to "Missing order ID")
+            )
+            val progress = PrepService.getPrepStatus(id) ?: return@get call.respond(
+                HttpStatusCode.NotFound, mapOf("error" to "No preparation started for order: $id")
+            )
+            call.respond(progress)
         }
 
         // GET /orders/{id}/delivery-fee

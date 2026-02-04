@@ -1,8 +1,10 @@
 # Workshop Setup Guide
 
-Complete these steps **before** the workshop so we can jump straight into coding.
+Follow these steps to get your environment ready. We will do this together at the start of the workshop.
 
 ## Prerequisites
+
+These should already be installed on the lab machines. If you are on your own laptop, install them now.
 
 ### 1. Java 17+ (JDK)
 
@@ -29,6 +31,7 @@ Download from [https://git-scm.com/](https://git-scm.com/) and install with defa
 When you open the project in VS Code, you will be prompted to install recommended extensions. Accept the prompt to install:
 
 - **Kotlin Language** (`fwcd.kotlin`) -- syntax highlighting, code completion, and diagnostics
+- **Java Extension Pack** (`vscjava.vscode-java-pack`) -- debugging, testing, and project management
 
 ## Step-by-Step Setup
 
@@ -55,30 +58,23 @@ When you open the project in VS Code, you will be prompted to install recommende
 
 7. **Confirm it works.** You should see the dashboard with mostly red indicators. That is expected -- your job during the workshop is to turn them green.
 
-## How to Iterate (Auto-Reload)
+Once everyone sees the dashboard, we are ready to start.
 
-The project supports **auto-reload** -- you do NOT need to restart the server after every code change. Here is how to set it up:
+## How to Iterate (Hot Reload)
 
-### Open two terminals in VS Code
+The server supports **hot reload** so you do not need to restart it after every change. Use two terminals:
 
-**Terminal 1 -- Run the server:**
+**Terminal 1** -- Start the server (run once):
 ```bash
 ./gradlew run
 ```
 
-**Terminal 2 -- Continuous build (watches for changes):**
+**Terminal 2** -- Start the continuous build (run once):
 ```bash
-./gradlew -t build
+./gradlew -t classes
 ```
 
-The `-t` flag tells Gradle to watch your source files. When you save a file, Gradle recompiles automatically, and Ktor detects the new classes and reloads the application.
-
-### Your workflow
-
-1. **Edit** your code in VS Code
-2. **Save** the file (`Ctrl + S`)
-3. **Wait** a few seconds for Terminal 2 to recompile
-4. **Refresh** the dashboard in your browser and click **"Re-check Progress"**
+Now when you save a file, Terminal 2 automatically recompiles and the running server picks up the changes. Just refresh your browser.
 
 ### Alternative: Run tests
 
@@ -89,6 +85,27 @@ You can also verify your work by running tests (no server needed):
 ```
 
 Tests always use your latest saved code.
+
+## Debugging with VS Code
+
+The server starts with a debug port enabled on **port 5005**. You can attach the VS Code debugger to set breakpoints and step through your code.
+
+### How to Debug
+
+1. **Start the server** in a terminal: `./gradlew run`
+2. **Set breakpoints** by clicking to the left of a line number in any `.kt` file
+3. **Attach the debugger**: Press `F5` or go to **Run > Start Debugging** and select **"Attach to Server"**
+4. **Trigger the code** by making an API call (via the dashboard or browser)
+5. VS Code will pause at your breakpoint and you can inspect variables, step through code, etc.
+
+### Running and Debugging Tests
+
+With the **Java Extension Pack** installed, you can run and debug individual tests directly from VS Code:
+
+- Open any test file (e.g., `Level1MenuFilterTest.kt`)
+- Click the green play button next to a test method to run it
+- Click the debug icon next to a test method to debug it with breakpoints
+- Use the **Testing** sidebar (flask icon) to see all tests and their status
 
 ---
 
@@ -108,3 +125,5 @@ Run tests for a specific level to check your progress:
 | `Port 8080 already in use` | Close whatever is using that port, or change the port in `Application.kt`. |
 | Gradle download is slow | The first run downloads dependencies. Be patient -- subsequent runs are much faster. |
 | Tests are failing | That is expected! The exercises start with failing tests. Your job is to make them pass. |
+| Hot reload not working | Make sure `./gradlew -t classes` is running in a second terminal. Check Terminal 2 for compilation errors. |
+| Debugger won't attach | Make sure the server is running first (`./gradlew run`). The debug port is 5005. |

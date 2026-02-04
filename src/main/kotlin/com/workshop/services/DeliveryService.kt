@@ -1,8 +1,27 @@
 package com.workshop.services
 
 import com.workshop.data.SampleData
+import com.workshop.models.Customer
 import com.workshop.models.Order
+import com.workshop.models.Restaurant
 import kotlin.math.*
+
+// Exercise 2B: Implement these extension functions
+
+// Extension: look up the restaurant for an order
+fun Order.findRestaurant(): Restaurant? {
+    TODO("Implement: find the restaurant matching this order's restaurantId in SampleData.restaurants")
+}
+
+// Extension: look up the customer for an order
+fun Order.findCustomer(): Customer? {
+    TODO("Implement: find the customer matching this order's customerId in SampleData.customers")
+}
+
+// Extension: round a Double to N decimal places
+fun Double.roundTo(decimals: Int): Double {
+    TODO("Implement: round this Double to the given number of decimal places using 10.0.pow() and Math.round()")
+}
 
 object DeliveryService {
 

@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kain Na! - Food Delivery API Workshop</title>
   <style>
-    /* Fallback styles when JS/Tailwind unavailable */
     :root {
       --green-600: #16a34a;
       --red-500: #ef4444;
@@ -29,30 +28,6 @@
       padding: 0;
       line-height: 1.6;
     }
-    .card-fallback {
-      background: white;
-      border-radius: 0.75rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-    }
-    .grid-fallback {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1rem;
-    }
-    .badge-fallback {
-      display: inline-block;
-      padding: 0.125rem 0.625rem;
-      border-radius: 9999px;
-      font-size: 0.75rem;
-      font-weight: 600;
-    }
-    .container-fallback {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 1rem;
-    }
     [x-cloak] { display: none !important; }
   </style>
   <script src="vendor/tailwind.min.js"></script>
@@ -63,16 +38,9 @@
           extend: {
             colors: {
               brand: {
-                50: '#fef7ee',
-                100: '#fdedd3',
-                200: '#f9d7a5',
-                300: '#f5b96d',
-                400: '#ef9233',
-                500: '#ec7a12',
-                600: '#dd6008',
-                700: '#b74809',
-                800: '#92390e',
-                900: '#76300f',
+                50: '#fef7ee', 100: '#fdedd3', 200: '#f9d7a5', 300: '#f5b96d',
+                400: '#ef9233', 500: '#ec7a12', 600: '#dd6008', 700: '#b74809',
+                800: '#92390e', 900: '#76300f',
               }
             }
           }
@@ -82,15 +50,15 @@
   </script>
   <script defer src="vendor/alpine.min.js"></script>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen">
+<body class="bg-slate-50 text-slate-800 min-h-screen" x-data="dashboard()" x-init="init()">
 
 <!-- Header -->
 <header class="bg-gradient-to-r from-orange-600 to-red-600 text-white shadow-lg">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4">
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-3xl font-bold tracking-tight">Kain Na! Food Delivery</h1>
-        <p class="text-orange-100 mt-1 text-sm">Kotlin + Ktor API Workshop Dashboard</p>
+        <h1 class="text-2xl font-bold tracking-tight">Kain Na! Food Delivery</h1>
+        <p class="text-orange-100 text-sm">Kotlin + Ktor API Workshop Dashboard</p>
       </div>
       <div class="text-right text-sm text-orange-100">
         <div>API Base: <code class="bg-white/20 px-2 py-0.5 rounded font-mono text-xs">http://localhost:8080/api</code></div>
@@ -99,59 +67,74 @@
   </div>
 </header>
 
-<main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-
-  <!-- ==================== PROGRESS TRACKER ==================== -->
-  <section x-data="progressTracker()" x-init="checkAll()">
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-xl font-bold text-slate-900">Workshop Progress</h2>
-        <button @click="checkAll()"
-          class="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium rounded-lg transition-colors">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-          Re-check Progress
-        </button>
-      </div>
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        <template x-for="ex in exercises" :key="ex.id">
-          <div class="flex items-center gap-2 p-3 rounded-lg border transition-colors"
-               :class="ex.status === 'pass' ? 'bg-green-50 border-green-200' : ex.status === 'fail' ? 'bg-red-50 border-red-200' : 'bg-slate-50 border-slate-200'">
-            <span x-show="ex.status === 'pass'" class="text-green-600 text-lg font-bold">&#10003;</span>
-            <span x-show="ex.status === 'fail'" class="text-red-500 text-lg font-bold">&#10007;</span>
-            <span x-show="ex.status === 'checking'" class="text-slate-400 text-sm">...</span>
-            <div class="min-w-0">
-              <div class="text-xs font-bold text-slate-500" x-text="ex.id"></div>
-              <div class="text-sm font-medium truncate" x-text="ex.label"
-                   :class="ex.status === 'pass' ? 'text-green-700' : ex.status === 'fail' ? 'text-red-600' : 'text-slate-600'"></div>
-            </div>
-          </div>
-        </template>
-      </div>
-      <div class="mt-4 flex items-center gap-3">
-        <div class="flex-1 bg-slate-100 rounded-full h-3 overflow-hidden">
-          <div class="bg-gradient-to-r from-green-500 to-emerald-500 h-3 rounded-full transition-all duration-500"
-               :style="'width:' + Math.round(passCount / exercises.length * 100) + '%'"></div>
+<!-- Sticky Progress Tracker -->
+<div class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3">
+    <div class="flex items-center gap-4">
+      <div class="flex-1">
+        <div class="flex flex-wrap gap-1.5">
+          <template x-for="ex in progress.exercises" :key="ex.id">
+            <button @click="navigateToExercise(ex.id)"
+              class="flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-colors border cursor-pointer"
+              :class="{
+                'bg-green-50 border-green-200 text-green-700': ex.status === 'pass',
+                'bg-red-50 border-red-200 text-red-600': ex.status === 'fail',
+                'bg-slate-50 border-slate-200 text-slate-400': ex.status === 'checking',
+                'ring-2 ring-orange-400': activeTab === tabForExercise(ex.id)
+              }">
+              <span x-show="ex.status === 'pass'" class="font-bold">&#10003;</span>
+              <span x-show="ex.status === 'fail'" class="font-bold">&#10007;</span>
+              <span x-show="ex.status === 'checking'">...</span>
+              <span x-text="ex.id"></span>
+            </button>
+          </template>
         </div>
-        <span class="text-sm font-semibold text-slate-600" x-text="passCount + '/' + exercises.length + ' complete'"></span>
+        <div class="mt-1.5 flex items-center gap-2">
+          <div class="flex-1 bg-slate-100 rounded-full h-2 overflow-hidden">
+            <div class="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all duration-500"
+                 :style="'width:' + Math.round(progress.passCount / progress.exercises.length * 100) + '%'"></div>
+          </div>
+          <span class="text-xs font-semibold text-slate-500" x-text="progress.passCount + '/' + progress.exercises.length"></span>
+          <button @click="checkAll()"
+            class="inline-flex items-center gap-1 px-3 py-1 bg-orange-600 hover:bg-orange-700 text-white text-xs font-medium rounded-lg transition-colors">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            Re-check
+          </button>
+        </div>
       </div>
     </div>
-  </section>
+  </div>
+</div>
 
-  <!-- ==================== RESTAURANTS ==================== -->
-  <section x-data="restaurantsSection()" x-init="loadRestaurants()">
+<!-- Tab Navigation -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 pt-4">
+  <div class="flex flex-wrap gap-1 border-b border-slate-200">
+    <template x-for="tab in tabs" :key="tab.id">
+      <button @click="activeTab = tab.id"
+        class="px-4 py-2 text-sm font-medium rounded-t-lg transition-colors border-b-2 -mb-px"
+        :class="activeTab === tab.id ? 'border-orange-500 text-orange-600 bg-white' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'">
+        <span x-text="tab.label"></span>
+      </button>
+    </template>
+  </div>
+</div>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+
+  <!-- ==================== RESTAURANTS (1A, 1C) ==================== -->
+  <section x-show="activeTab === 'restaurants'" x-data="restaurantsSection()" x-init="loadRestaurants()">
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
       <div class="flex items-center gap-3 mb-4">
         <h2 class="text-xl font-bold text-slate-900">Restaurants</h2>
+        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">Exercises 1A, 1C</span>
         <span x-show="restaurants.length > 0" class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-700">&#10003; Loaded</span>
       </div>
 
-      <!-- Error / exercise prompt -->
       <div x-show="error" class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
         <p class="text-amber-800 font-medium">Complete the Restaurants exercises to unlock this section!</p>
         <p class="text-amber-600 text-sm mt-1" x-text="error"></p>
       </div>
 
-      <!-- Restaurant list -->
       <div x-show="restaurants.length > 0">
         <div class="flex flex-wrap gap-2 mb-4">
           <template x-for="r in restaurants" :key="r.id">
@@ -164,10 +147,11 @@
           </template>
         </div>
 
-        <!-- Menu filters -->
-        <div x-show="selected" class="mb-4">
+        <!-- Menu filters (1A) -->
+        <div x-show="selected" class="mb-6">
           <h3 class="text-lg font-semibold text-slate-700 mb-2">
             Menu for <span x-text="selected ? selected.name : ''" class="text-orange-600"></span>
+            <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full ml-2">1A</span>
           </h3>
           <div class="flex flex-wrap gap-3 mb-4">
             <div>
@@ -182,7 +166,6 @@
             </div>
           </div>
 
-          <!-- Menu filter error -->
           <div x-show="menuError && !menuFilterError" class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
             <p class="text-amber-800 font-medium">Complete Exercise 1A: Menu Filter to see filtered results!</p>
             <p class="text-amber-600 text-sm mt-1" x-text="menuError"></p>
@@ -191,7 +174,6 @@
             <p class="text-red-600 text-sm" x-text="menuFilterError"></p>
           </div>
 
-          <!-- Menu items grid -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <template x-for="item in menu" :key="item.name">
               <div class="border border-slate-200 rounded-lg p-4 hover:shadow-md transition-shadow">
@@ -210,26 +192,51 @@
           </div>
           <p x-show="menu.length === 0 && !menuError" class="text-slate-400 text-sm italic mt-2">No menu items match the filters.</p>
         </div>
+
+        <!-- Restaurant Hours (1C) -->
+        <div x-show="selected" class="border-t border-slate-200 pt-4">
+          <h3 class="text-lg font-semibold text-slate-700 mb-2">
+            Operating Hours
+            <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full ml-2">1C</span>
+          </h3>
+          <div class="flex flex-wrap items-end gap-3 mb-3">
+            <div>
+              <label class="block text-xs font-medium text-slate-500 mb-1">Check time (HH:mm)</label>
+              <input type="text" x-model="checkTime" placeholder="e.g. 14:30"
+                class="w-32 px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400">
+            </div>
+            <button @click="checkIfOpen()"
+              class="px-4 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium rounded-lg transition-colors">
+              Check
+            </button>
+          </div>
+          <div x-show="hoursResult !== null" class="p-3 rounded-lg" :class="hoursResult?.isOpen ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'">
+            <span x-show="hoursResult?.isOpen" class="text-green-700 font-medium">&#10003; Open at <span x-text="checkTime"></span></span>
+            <span x-show="hoursResult && !hoursResult.isOpen" class="text-red-600 font-medium">&#10007; Closed at <span x-text="checkTime"></span></span>
+          </div>
+          <div x-show="hoursError" class="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-2">
+            <p class="text-amber-700 text-sm" x-text="hoursError"></p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ==================== ORDERS ==================== -->
-  <section x-data="ordersSection()" x-init="loadOrders()">
+  <!-- ==================== ORDERS (1B, 1D, 2A) ==================== -->
+  <section x-show="activeTab === 'orders'" x-data="ordersSection()" x-init="loadOrders()">
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
       <div class="flex items-center gap-3 mb-4">
         <h2 class="text-xl font-bold text-slate-900">Orders</h2>
+        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">Exercises 1B, 1D, 2A</span>
         <span x-show="orders.length > 0" class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-700">&#10003; Loaded</span>
         <button x-show="orders.length > 0" @click="loadOrders()" class="ml-auto text-sm text-orange-600 hover:text-orange-800 font-medium">Reload</button>
       </div>
 
-      <!-- Error -->
       <div x-show="error" class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
         <p class="text-amber-800 font-medium">Complete the Orders exercises to unlock this section!</p>
         <p class="text-amber-600 text-sm mt-1" x-text="error"></p>
       </div>
 
-      <!-- Orders list -->
       <div x-show="orders.length > 0" class="space-y-4">
         <template x-for="order in orders" :key="order.id">
           <div class="border border-slate-200 rounded-lg p-4">
@@ -245,12 +252,11 @@
                 }"
                 x-text="order.status"></span>
               <span class="text-sm text-slate-500" x-text="order.restaurantId ? 'Restaurant #' + order.restaurantId : ''"></span>
-              <span x-show="order._total != null" class="ml-auto text-lg font-bold text-orange-600" x-text="'&#8369;' + (order._total || 0).toFixed(2)"></span>
+              <span x-show="order._total != null" class="ml-auto text-lg font-bold text-orange-600" x-text="'&#8369;' + Number(order._total).toFixed(2)"></span>
               <span x-show="order._totalError" class="ml-auto">
-                <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Exercise 1B: Order Total</span>
+                <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">1B: Order Total</span>
               </span>
             </div>
-            <!-- Items -->
             <div class="flex flex-wrap gap-2 mb-3">
               <template x-for="item in (order.items || [])" :key="item.menuItemName">
                 <span class="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded">
@@ -258,13 +264,12 @@
                 </span>
               </template>
             </div>
-            <!-- Actions -->
-            <div class="flex flex-wrap gap-2">
+            <div class="flex flex-wrap gap-2 items-center">
               <button
                 x-show="order.status && !['Delivered','Cancelled'].includes(order.status)"
                 @click="advanceStatus(order)"
                 class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors">
-                Advance Status
+                Advance Status <span class="opacity-75">2A</span>
               </button>
               <button
                 x-show="order.status && !['Delivered','Cancelled'].includes(order.status)"
@@ -272,21 +277,41 @@
                 class="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-xs font-medium rounded-lg transition-colors">
                 Cancel
               </button>
+              <button @click="viewSummary(order)"
+                class="px-3 py-1.5 bg-slate-600 hover:bg-slate-700 text-white text-xs font-medium rounded-lg transition-colors">
+                View Summary <span class="opacity-75">1D</span>
+              </button>
               <span x-show="order._statusMsg" class="text-xs self-center"
                 :class="order._statusOk ? 'text-green-600' : 'text-red-500'"
                 x-text="order._statusMsg"></span>
             </div>
+            <!-- Order Summary (1D) -->
+            <div x-show="order._summary" class="mt-3 bg-slate-50 rounded-lg p-3 text-sm">
+              <div class="font-semibold text-slate-600 mb-2">Order Summary</div>
+              <template x-for="item in (order._summary?.items || [])" :key="item.name">
+                <div class="flex justify-between text-slate-600 py-0.5">
+                  <span><span x-text="item.name"></span> &times;<span x-text="item.quantity"></span></span>
+                  <span x-text="'&#8369;' + item.subtotal"></span>
+                </div>
+              </template>
+              <div class="flex justify-between font-bold text-slate-800 border-t border-slate-200 pt-1 mt-1">
+                <span>Grand Total</span>
+                <span x-text="'&#8369;' + (order._summary?.grandTotal || '0.00')"></span>
+              </div>
+            </div>
+            <div x-show="order._summaryError" class="mt-2 text-xs text-amber-600" x-text="order._summaryError"></div>
           </div>
         </template>
       </div>
     </div>
   </section>
 
-  <!-- ==================== DELIVERY ==================== -->
-  <section x-data="deliverySection()" x-init="loadOrders()">
+  <!-- ==================== DELIVERY (2B) ==================== -->
+  <section x-show="activeTab === 'delivery'" x-data="deliverySection()" x-init="loadOrders()">
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
       <div class="flex items-center gap-3 mb-4">
         <h2 class="text-xl font-bold text-slate-900">Delivery Fee Calculator</h2>
+        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">Exercise 2B</span>
       </div>
 
       <div class="flex flex-wrap items-end gap-4 mb-4">
@@ -302,13 +327,11 @@
         </div>
       </div>
 
-      <!-- Not implemented error -->
       <div x-show="notImplemented" class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
         <p class="text-amber-800 font-medium">Complete Exercise 2B: Delivery Fee to unlock this!</p>
         <p class="text-amber-600 text-sm mt-1" x-text="error"></p>
       </div>
 
-      <!-- Business error (e.g. no address) -->
       <div x-show="error && !notImplemented" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
         <p class="text-red-800 font-medium">Delivery Fee Error</p>
         <p class="text-red-600 text-sm mt-1" x-text="error"></p>
@@ -319,7 +342,6 @@
         <p class="text-amber-600 text-sm mt-1" x-text="ordersError"></p>
       </div>
 
-      <!-- Fee result -->
       <div x-show="fee" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div class="bg-slate-50 rounded-lg p-4 text-center">
           <div class="text-xs uppercase tracking-wide text-slate-500 mb-1">Distance</div>
@@ -337,11 +359,105 @@
     </div>
   </section>
 
-  <!-- ==================== SEARCH ==================== -->
-  <section x-data="searchSection()">
+  <!-- ==================== LOYALTY (2C) ==================== -->
+  <section x-show="activeTab === 'loyalty'" x-data="loyaltySection()">
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+      <div class="flex items-center gap-3 mb-4">
+        <h2 class="text-xl font-bold text-slate-900">Customer Loyalty</h2>
+        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">Exercise 2C</span>
+      </div>
+
+      <div class="flex flex-wrap items-end gap-4 mb-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-500 mb-1">Customer ID</label>
+          <select x-model="customerId" @change="fetchLoyalty()"
+            class="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400">
+            <option value="">-- choose a customer --</option>
+            <option value="cust-1">cust-1 (Juan dela Cruz)</option>
+            <option value="cust-2">cust-2 (Maria Santos)</option>
+            <option value="cust-3">cust-3 (Pedro Reyes)</option>
+          </select>
+        </div>
+      </div>
+
+      <div x-show="error" class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+        <p class="text-amber-800 font-medium">Complete Exercise 2C: Loyalty Tiers to unlock this!</p>
+        <p class="text-amber-600 text-sm mt-1" x-text="error"></p>
+      </div>
+
+      <div x-show="info" class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="bg-gradient-to-br from-yellow-50 to-amber-50 border border-amber-200 rounded-lg p-4 text-center">
+          <div class="text-xs uppercase tracking-wide text-amber-600 mb-1">Tier</div>
+          <div class="text-2xl font-bold text-amber-700" x-text="info?.tier || '—'"></div>
+        </div>
+        <div class="bg-slate-50 rounded-lg p-4 text-center">
+          <div class="text-xs uppercase tracking-wide text-slate-500 mb-1">Orders</div>
+          <div class="text-2xl font-bold text-slate-800" x-text="info?.orderCount || 0"></div>
+        </div>
+        <div class="bg-slate-50 rounded-lg p-4 text-center">
+          <div class="text-xs uppercase tracking-wide text-slate-500 mb-1">Total Spend</div>
+          <div class="text-2xl font-bold text-slate-800" x-text="info ? '&#8369;' + (info.totalSpend || 0).toLocaleString('en-PH', {minimumFractionDigits:2}) : ''"></div>
+        </div>
+        <div class="bg-green-50 rounded-lg p-4 text-center">
+          <div class="text-xs uppercase tracking-wide text-green-600 mb-1">Discount</div>
+          <div class="text-2xl font-bold text-green-700" x-text="(info?.discountPercent || 0) + '%'"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== PREP SIMULATION (2D) ==================== -->
+  <section x-show="activeTab === 'prep'" x-data="prepSection()" x-init="loadOrders()">
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+      <div class="flex items-center gap-3 mb-4">
+        <h2 class="text-xl font-bold text-slate-900">Order Preparation</h2>
+        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">Exercise 2D</span>
+      </div>
+
+      <div class="flex flex-wrap items-end gap-4 mb-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-500 mb-1">Select Order</label>
+          <select x-model="selectedOrderId"
+            class="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400">
+            <option value="">-- choose an order --</option>
+            <template x-for="o in orders" :key="o.id">
+              <option :value="o.id" x-text="'Order #' + o.id + ' (' + o.status + ')'"></option>
+            </template>
+          </select>
+        </div>
+        <button @click="startPrep()" :disabled="!selectedOrderId"
+          class="px-4 py-2 bg-orange-600 hover:bg-orange-700 disabled:bg-slate-300 text-white text-sm font-medium rounded-lg transition-colors">
+          Start Preparation
+        </button>
+      </div>
+
+      <div x-show="error" class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+        <p class="text-amber-800 font-medium">Complete Exercise 2D: Prep Simulation to unlock this!</p>
+        <p class="text-amber-600 text-sm mt-1" x-text="error"></p>
+      </div>
+
+      <div x-show="status">
+        <div class="mb-3">
+          <div class="flex justify-between text-sm mb-1">
+            <span class="text-slate-600" x-text="status?.inProgress ? 'Preparing...' : 'Complete!'"></span>
+            <span class="font-semibold text-slate-700" x-text="(status?.completedItems || 0) + '/' + (status?.totalItems || 0) + ' items'"></span>
+          </div>
+          <div class="bg-slate-100 rounded-full h-4 overflow-hidden">
+            <div class="h-4 rounded-full transition-all duration-300"
+              :class="status?.inProgress ? 'bg-gradient-to-r from-yellow-400 to-orange-400' : 'bg-gradient-to-r from-green-400 to-emerald-500'"
+              :style="'width:' + (status?.totalItems ? Math.round(status.completedItems / status.totalItems * 100) : 0) + '%'"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SEARCH (3A) ==================== -->
+  <section x-show="activeTab === 'search'" x-data="searchSection()">
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
       <div class="flex items-center gap-3 mb-4">
         <h2 class="text-xl font-bold text-slate-900">Restaurant Search</h2>
+        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">Exercise 3A</span>
       </div>
 
       <div class="flex flex-wrap gap-3 mb-4">
@@ -358,7 +474,7 @@
             placeholder="e.g. 4.0">
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-500 mb-1">Max Delivery Time (minutes)</label>
+          <label class="block text-xs font-medium text-slate-500 mb-1">Max Delivery Time (min)</label>
           <input type="number" x-model="maxDeliveryTime"
             class="w-36 px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
             placeholder="e.g. 45">
@@ -381,13 +497,11 @@
         </div>
       </div>
 
-      <!-- Error -->
       <div x-show="error" class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
         <p class="text-amber-800 font-medium">Complete Exercise 3A: Search to unlock this!</p>
         <p class="text-amber-600 text-sm mt-1" x-text="error"></p>
       </div>
 
-      <!-- Results -->
       <div x-show="results.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <template x-for="r in results" :key="r.id">
           <div class="border border-slate-200 rounded-lg p-4 hover:shadow-md transition-shadow">
@@ -407,23 +521,22 @@
     </div>
   </section>
 
-  <!-- ==================== ANALYTICS ==================== -->
-  <section x-data="analyticsSection()" x-init="loadAnalytics()">
+  <!-- ==================== ANALYTICS (3B) ==================== -->
+  <section x-show="activeTab === 'analytics'" x-data="analyticsSection()" x-init="loadAnalytics()">
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
       <div class="flex items-center gap-3 mb-4">
         <h2 class="text-xl font-bold text-slate-900">Analytics Dashboard</h2>
+        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">Exercise 3B</span>
         <span x-show="data" class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-700">&#10003; Loaded</span>
         <button @click="loadAnalytics()" class="ml-auto text-sm text-orange-600 hover:text-orange-800 font-medium">Reload</button>
       </div>
 
-      <!-- Error -->
       <div x-show="error" class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
         <p class="text-amber-800 font-medium">Complete Exercise 3B: Analytics to unlock this!</p>
         <p class="text-amber-600 text-sm mt-1" x-text="error"></p>
       </div>
 
       <div x-show="data">
-        <!-- Summary cards -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           <div class="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-lg p-5 text-center">
             <div class="text-xs uppercase tracking-wide text-green-600 mb-1">Total Revenue</div>
@@ -439,7 +552,6 @@
           </div>
         </div>
 
-        <!-- Top Items -->
         <div x-show="data && data.topItems && data.topItems.length" class="mb-6">
           <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">Top Items</h3>
           <div class="space-y-2">
@@ -456,7 +568,6 @@
           </div>
         </div>
 
-        <!-- Orders by Status -->
         <div x-show="data && data.ordersByStatus" class="mb-6">
           <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">Orders by Status</h3>
           <div class="flex flex-wrap gap-3">
@@ -476,7 +587,6 @@
           </div>
         </div>
 
-        <!-- Revenue by Restaurant -->
         <div x-show="data && data.revenueByRestaurant">
           <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">Revenue by Restaurant</h3>
           <div class="space-y-2">
@@ -496,9 +606,49 @@
     </div>
   </section>
 
+  <!-- ==================== RECOMMENDATIONS (3C) ==================== -->
+  <section x-show="activeTab === 'recommendations'" x-data="recommendationsSection()">
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+      <div class="flex items-center gap-3 mb-4">
+        <h2 class="text-xl font-bold text-slate-900">Recommendations</h2>
+        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">Exercise 3C</span>
+      </div>
+
+      <div class="flex flex-wrap items-end gap-4 mb-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-500 mb-1">Customer ID</label>
+          <select x-model="customerId" @change="fetchRecommendations()"
+            class="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400">
+            <option value="">-- choose a customer --</option>
+            <option value="cust-1">cust-1 (Juan dela Cruz)</option>
+            <option value="cust-2">cust-2 (Maria Santos)</option>
+            <option value="cust-3">cust-3 (Pedro Reyes)</option>
+          </select>
+        </div>
+      </div>
+
+      <div x-show="error" class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+        <p class="text-amber-800 font-medium">Complete Exercise 3C: Recommendations to unlock this!</p>
+        <p class="text-amber-600 text-sm mt-1" x-text="error"></p>
+      </div>
+
+      <div x-show="recs.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <template x-for="rec in recs" :key="rec.menuItemId">
+          <div class="border border-slate-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+            <div class="flex justify-between items-start">
+              <h4 class="font-semibold text-slate-800" x-text="rec.name"></h4>
+              <span class="text-orange-600 font-bold whitespace-nowrap" x-text="'&#8369;' + (rec.price || 0).toFixed(2)"></span>
+            </div>
+            <p class="text-sm text-slate-500 mt-1" x-text="rec.restaurantName"></p>
+            <span class="inline-block text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full mt-2" x-text="rec.reason"></span>
+          </div>
+        </template>
+      </div>
+    </div>
+  </section>
+
 </main>
 
-<!-- Footer -->
 <footer class="bg-slate-800 text-slate-400 text-center py-6 mt-12 text-sm">
   <p>Kain Na! Food Delivery &mdash; Kotlin + Ktor Workshop</p>
   <p class="text-slate-500 text-xs mt-1">Prices in Philippine Peso (&#8369;)</p>
@@ -522,91 +672,141 @@ const NEXT_STATUS = {
   'OutForDelivery': 'Delivered'
 };
 
-// ---- Progress Tracker ----
-function progressTracker() {
+// ---- Main Dashboard ----
+function dashboard() {
   return {
-    exercises: [
-      { id: '1A', label: 'Menu Filter', status: 'checking' },
-      { id: '1B', label: 'Order Total', status: 'checking' },
-      { id: '2A', label: 'Status Transitions', status: 'checking' },
-      { id: '2B', label: 'Delivery Fee', status: 'checking' },
-      { id: '3A', label: 'Search', status: 'checking' },
-      { id: '3B', label: 'Analytics', status: 'checking' },
+    activeTab: 'restaurants',
+    tabs: [
+      { id: 'restaurants', label: 'Restaurants' },
+      { id: 'orders', label: 'Orders' },
+      { id: 'delivery', label: 'Delivery' },
+      { id: 'loyalty', label: 'Loyalty' },
+      { id: 'prep', label: 'Prep Sim' },
+      { id: 'search', label: 'Search' },
+      { id: 'analytics', label: 'Analytics' },
+      { id: 'recommendations', label: 'Recs' },
     ],
-    get passCount() { return this.exercises.filter(e => e.status === 'pass').length; },
-    async checkAll() {
-      this.exercises.forEach(e => e.status = 'checking');
-      // 1A: Menu Filter - need a restaurant id, try to get from restaurants list
-      const check = async (idx, fn) => { try { await fn(); this.exercises[idx].status = 'pass'; } catch { this.exercises[idx].status = 'fail'; } };
+    progress: {
+      exercises: [
+        { id: '1A', label: 'Menu Filter', status: 'checking' },
+        { id: '1B', label: 'Order Total', status: 'checking' },
+        { id: '1C', label: 'Hours', status: 'checking' },
+        { id: '1D', label: 'Summary', status: 'checking' },
+        { id: '2A', label: 'Status', status: 'checking' },
+        { id: '2B', label: 'Delivery', status: 'checking' },
+        { id: '2C', label: 'Loyalty', status: 'checking' },
+        { id: '2D', label: 'Prep', status: 'checking' },
+        { id: '3A', label: 'Search', status: 'checking' },
+        { id: '3B', label: 'Analytics', status: 'checking' },
+        { id: '3C', label: 'Recs', status: 'checking' },
+      ],
+      get passCount() { return this.exercises.filter(e => e.status === 'pass').length; }
+    },
 
-      let restaurantId = 1;
-      let orderId = 1;
-      try {
-        const restaurants = await apiFetch('/api/restaurants');
-        if (restaurants.length > 0) restaurantId = restaurants[0].id;
-      } catch {}
-      try {
-        const orders = await apiFetch('/api/orders');
-        if (orders.length > 0) orderId = orders[0].id;
-      } catch {}
+    init() { this.checkAll(); },
+
+    tabForExercise(id) {
+      const map = { '1A':'restaurants','1C':'restaurants','1B':'orders','1D':'orders','2A':'orders',
+        '2B':'delivery','2C':'loyalty','2D':'prep','3A':'search','3B':'analytics','3C':'recommendations' };
+      return map[id] || 'restaurants';
+    },
+
+    navigateToExercise(id) {
+      this.activeTab = this.tabForExercise(id);
+    },
+
+    async checkAll() {
+      this.progress.exercises.forEach(e => e.status = 'checking');
+      const check = async (idx, fn) => {
+        try { await fn(); this.progress.exercises[idx].status = 'pass'; }
+        catch { this.progress.exercises[idx].status = 'fail'; }
+      };
 
       await Promise.all([
-        // 1A: Menu filter - must test with dietary param (triggers null-safety bug)
-        //     AND verify price filter returns correct items (not inverted)
+        // 1A
         check(0, async () => {
-          // Test dietary filter with items that have null tags (Jollibee)
           const items = await apiFetch('/api/restaurants/resto-2/menu?dietary=vegetarian');
-          // Also test price filter returns items AT or BELOW price
           const priceItems = await apiFetch('/api/restaurants/resto-1/menu?maxPrice=100');
-          if (priceItems.some(i => i.price > 100)) throw new Error('Price filter still broken');
-          if (priceItems.length === 0) throw new Error('Price filter returns no items');
+          if (priceItems.some(i => i.price > 100)) throw new Error('Price filter broken');
+          if (priceItems.length === 0) throw new Error('No items');
         }),
-        // 1B: Order total - verify the math is correct (price × quantity + discount)
+        // 1B
         check(1, async () => {
           const data = await apiFetch('/api/orders/order-1/total');
           const total = parseFloat(data.total);
-          // Order 1: (149×2)+(89×1)+(25×2) = 437 (no discount, under 500)
-          if (Math.abs(total - 437.0) > 1) throw new Error('Total is wrong: ' + total + ', expected 437');
+          if (Math.abs(total - 437.0) > 1) throw new Error('Wrong total: ' + total);
         }),
-        // 2A: Status transitions - try an invalid transition to test that validation works
-        //     (Delivered → Placed should fail with a specific error, not "Not implemented")
+        // 1C
         check(2, async () => {
+          const open = await apiFetch('/api/restaurants/resto-1/open?time=14:30');
+          if (!open.isOpen) throw new Error('Should be open');
+          const closed = await apiFetch('/api/restaurants/resto-1/open?time=07:00');
+          if (closed.isOpen) throw new Error('Should be closed');
+          // Midnight crossing
+          const lateOpen = await apiFetch('/api/restaurants/resto-4/open?time=23:00');
+          if (!lateOpen.isOpen) throw new Error('Late-night should be open at 23:00');
+          const lateClosed = await apiFetch('/api/restaurants/resto-4/open?time=15:00');
+          if (lateClosed.isOpen) throw new Error('Late-night should be closed at 15:00');
+          // Null hours
+          const alwaysOpen = await apiFetch('/api/restaurants/resto-5/open?time=03:00');
+          if (!alwaysOpen.isOpen) throw new Error('No hours should be always open');
+        }),
+        // 1D
+        check(3, async () => {
+          const data = await apiFetch('/api/orders/order-1/summary');
+          if (!data.items || data.items.length !== 3) throw new Error('Wrong item count');
+          if (data.grandTotal !== '437.00') throw new Error('Wrong total: ' + data.grandTotal);
+          const first = data.items.find(i => i.name === 'Chicken Inasal Paa');
+          if (!first) throw new Error('Missing first item');
+        }),
+        // 2A
+        check(4, async () => {
           const orders = await apiFetch('/api/orders');
           const delivered = orders.find(o => o.status === 'Delivered');
-          if (!delivered) throw new Error('no delivered order');
+          if (!delivered) throw new Error('No delivered order');
           const res = await fetch('/api/orders/' + delivered.id + '/status', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            method: 'PUT', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ newStatus: 'Placed' })
           });
           const body = await res.json();
-          // Should fail, but with a transition error (not "Not implemented")
-          if (body.error && body.error.includes('Not implemented')) throw new Error('Not implemented yet');
-          if (body.error && body.error.includes('Cannot transition')) {
-            // This means canTransitionTo() works correctly! The endpoint is implemented.
-            return;
-          }
-          // If it somehow succeeded (bad), or returned unexpected error
-          if (res.ok) throw new Error('Should have rejected Delivered→Placed');
+          if (body.error && body.error.includes('Not implemented')) throw new Error('Not implemented');
+          if (body.error && body.error.includes('Cannot transition')) return;
+          if (res.ok) throw new Error('Should reject');
         }),
-        // 2B: Delivery fee - must return a valid fee result with distance > 0
-        check(3, async () => {
-          const data = await apiFetch('/api/orders/order-1/delivery-fee');
-          if (!data.distanceKm && !data.distance) throw new Error('No distance in response');
-          if (data.fee === undefined && data.deliveryFee === undefined) throw new Error('No fee in response');
-        }),
-        // 3A: Search - must return actual results (not empty)
-        check(4, async () => {
-          const results = await apiFetch('/api/restaurants/search?cuisine=Filipino');
-          if (!Array.isArray(results) || results.length === 0) throw new Error('Search returned no results');
-          if (!results.every(r => r.cuisine === 'Filipino')) throw new Error('Search filter not working');
-        }),
-        // 3B: Analytics - must have non-zero values
+        // 2B
         check(5, async () => {
+          const data = await apiFetch('/api/orders/order-1/delivery-fee');
+          if (!data.distanceKm && !data.distance) throw new Error('No distance');
+          if (data.fee === undefined && data.deliveryFee === undefined) throw new Error('No fee');
+        }),
+        // 2C
+        check(6, async () => {
+          const data = await apiFetch('/api/customers/cust-1/loyalty');
+          if (!data.tier) throw new Error('No tier');
+          if (!data.customerName) throw new Error('No name');
+        }),
+        // 2D
+        check(7, async () => {
+          const data = await apiFetch('/api/orders/order-1/prepare', { method: 'POST' });
+          if (data.totalItems === undefined) throw new Error('No totalItems');
+        }),
+        // 3A
+        check(8, async () => {
+          const results = await apiFetch('/api/restaurants/search?cuisine=Filipino');
+          if (!Array.isArray(results) || results.length === 0) throw new Error('No results');
+          if (!results.every(r => r.cuisine === 'Filipino')) throw new Error('Filter broken');
+        }),
+        // 3B
+        check(9, async () => {
           const data = await apiFetch('/api/analytics/summary');
-          if (!data.totalOrders || data.totalOrders === 0) throw new Error('No order count');
+          if (!data.totalOrders || data.totalOrders === 0) throw new Error('No orders');
           if (!data.totalRevenue || data.totalRevenue === 0) throw new Error('No revenue');
           if (!data.topItems || data.topItems.length === 0) throw new Error('No top items');
+        }),
+        // 3C
+        check(10, async () => {
+          const data = await apiFetch('/api/customers/cust-1/recommendations');
+          if (!Array.isArray(data) || data.length === 0) throw new Error('No recs');
         }),
       ]);
     }
@@ -616,48 +816,41 @@ function progressTracker() {
 // ---- Restaurants ----
 function restaurantsSection() {
   return {
-    restaurants: [],
-    selected: null,
-    menu: [],
-    maxPrice: '',
-    dietary: '',
-    error: '',
-    menuError: '',
-    menuFilterError: '',
+    restaurants: [], selected: null, menu: [],
+    maxPrice: '', dietary: '',
+    error: '', menuError: '', menuFilterError: '',
+    checkTime: '', hoursResult: null, hoursError: '',
     async loadRestaurants() {
       this.error = '';
-      try {
-        this.restaurants = await apiFetch('/api/restaurants');
-      } catch (e) {
-        this.error = e.message;
-      }
+      try { this.restaurants = await apiFetch('/api/restaurants'); }
+      catch (e) { this.error = e.message; }
     },
     async selectRestaurant(r) {
-      this.selected = r;
-      this.maxPrice = '';
-      this.dietary = '';
+      this.selected = r; this.maxPrice = ''; this.dietary = '';
+      this.hoursResult = null; this.hoursError = '';
       await this.loadMenu();
     },
     async loadMenu() {
       if (!this.selected) return;
-      this.menuError = '';
-      this.menuFilterError = '';
+      this.menuError = ''; this.menuFilterError = '';
       let url = '/api/restaurants/' + this.selected.id + '/menu';
       const params = new URLSearchParams();
       if (this.maxPrice) params.set('maxPrice', this.maxPrice);
       if (this.dietary) params.set('dietary', this.dietary);
       const qs = params.toString();
       if (qs) url += '?' + qs;
-      try {
-        this.menu = await apiFetch(url);
-      } catch (e) {
+      try { this.menu = await apiFetch(url); }
+      catch (e) {
         this.menu = [];
-        if (this.maxPrice || this.dietary) {
-          this.menuError = e.message;
-        } else {
-          this.menuFilterError = e.message;
-        }
+        if (this.maxPrice || this.dietary) { this.menuError = e.message; }
+        else { this.menuFilterError = e.message; }
       }
+    },
+    async checkIfOpen() {
+      if (!this.selected || !this.checkTime) return;
+      this.hoursResult = null; this.hoursError = '';
+      try { this.hoursResult = await apiFetch('/api/restaurants/' + this.selected.id + '/open?time=' + this.checkTime); }
+      catch (e) { this.hoursError = e.message; }
     }
   };
 }
@@ -665,75 +858,54 @@ function restaurantsSection() {
 // ---- Orders ----
 function ordersSection() {
   return {
-    orders: [],
-    error: '',
+    orders: [], error: '',
     async loadOrders() {
       this.error = '';
       try {
         const orders = await apiFetch('/api/orders');
-        // Fetch totals for each order
         this.orders = await Promise.all(orders.map(async (order) => {
-          order._total = null;
-          order._totalError = false;
-          order._statusMsg = '';
-          order._statusOk = false;
+          order._total = null; order._totalError = false;
+          order._statusMsg = ''; order._statusOk = false;
+          order._summary = null; order._summaryError = '';
           try {
             const totalData = await apiFetch('/api/orders/' + order.id + '/total');
             order._total = totalData.total != null ? totalData.total : totalData;
-          } catch {
-            order._totalError = true;
-          }
+          } catch { order._totalError = true; }
           return order;
         }));
-      } catch (e) {
-        this.error = e.message;
-      }
+      } catch (e) { this.error = e.message; }
     },
     async advanceStatus(order) {
-      const next = NEXT_STATUS[order.status];
-      if (!next) return;
+      const next = NEXT_STATUS[order.status]; if (!next) return;
       order._statusMsg = '';
       try {
         await fetch('/api/orders/' + order.id + '/status', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          method: 'PUT', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ newStatus: next })
         }).then(async res => {
-          if (!res.ok) {
-            const body = await res.json().catch(() => ({}));
-            throw new Error(body.message || body.error || res.statusText);
-          }
+          if (!res.ok) { const body = await res.json().catch(() => ({})); throw new Error(body.message || body.error || res.statusText); }
           return res.json().catch(() => ({}));
         });
-        order.status = next;
-        order._statusMsg = 'Status updated to ' + next;
-        order._statusOk = true;
-      } catch (e) {
-        order._statusMsg = e.message;
-        order._statusOk = false;
-      }
+        order.status = next; order._statusMsg = 'Updated to ' + next; order._statusOk = true;
+      } catch (e) { order._statusMsg = e.message; order._statusOk = false; }
     },
     async cancelOrder(order) {
       order._statusMsg = '';
       try {
         await fetch('/api/orders/' + order.id + '/status', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          method: 'PUT', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ newStatus: 'Cancelled' })
         }).then(async res => {
-          if (!res.ok) {
-            const body = await res.json().catch(() => ({}));
-            throw new Error(body.message || body.error || res.statusText);
-          }
+          if (!res.ok) { const body = await res.json().catch(() => ({})); throw new Error(body.message || body.error || res.statusText); }
           return res.json().catch(() => ({}));
         });
-        order.status = 'Cancelled';
-        order._statusMsg = 'Order cancelled';
-        order._statusOk = true;
-      } catch (e) {
-        order._statusMsg = e.message;
-        order._statusOk = false;
-      }
+        order.status = 'Cancelled'; order._statusMsg = 'Order cancelled'; order._statusOk = true;
+      } catch (e) { order._statusMsg = e.message; order._statusOk = false; }
+    },
+    async viewSummary(order) {
+      order._summary = null; order._summaryError = '';
+      try { order._summary = await apiFetch('/api/orders/' + order.id + '/summary'); }
+      catch (e) { order._summaryError = 'Exercise 1D: ' + e.message; }
     }
   };
 }
@@ -741,30 +913,56 @@ function ordersSection() {
 // ---- Delivery ----
 function deliverySection() {
   return {
-    orders: [],
-    selectedOrderId: '',
-    fee: null,
-    error: '',
-    notImplemented: false,
-    ordersError: '',
+    orders: [], selectedOrderId: '', fee: null, error: '', notImplemented: '', ordersError: '',
     async loadOrders() {
-      try {
-        this.orders = await apiFetch('/api/orders');
-      } catch (e) {
-        this.ordersError = e.message;
-      }
+      try { this.orders = await apiFetch('/api/orders'); }
+      catch (e) { this.ordersError = e.message; }
     },
     async fetchFee() {
-      if (!this.selectedOrderId) { this.fee = null; this.error = ''; this.notImplemented = false; return; }
-      this.error = '';
-      this.notImplemented = false;
-      this.fee = null;
-      try {
-        this.fee = await apiFetch('/api/orders/' + this.selectedOrderId + '/delivery-fee');
-      } catch (e) {
-        this.error = e.message;
-        this.notImplemented = e.message && e.message.toLowerCase().includes('not implemented');
+      if (!this.selectedOrderId) { this.fee = null; this.error = ''; this.notImplemented = ''; return; }
+      this.error = ''; this.notImplemented = ''; this.fee = null;
+      try { this.fee = await apiFetch('/api/orders/' + this.selectedOrderId + '/delivery-fee'); }
+      catch (e) {
+        if (e.message && e.message.includes('Not implemented')) { this.notImplemented = e.message; }
+        else { this.error = e.message; }
       }
+    }
+  };
+}
+
+// ---- Loyalty ----
+function loyaltySection() {
+  return {
+    customerId: '', info: null, error: '',
+    async fetchLoyalty() {
+      if (!this.customerId) { this.info = null; this.error = ''; return; }
+      this.error = ''; this.info = null;
+      try { this.info = await apiFetch('/api/customers/' + this.customerId + '/loyalty'); }
+      catch (e) { this.error = e.message; }
+    }
+  };
+}
+
+// ---- Prep Simulation ----
+function prepSection() {
+  return {
+    orders: [], selectedOrderId: '', status: null, error: '', pollTimer: null,
+    async loadOrders() {
+      try { this.orders = await apiFetch('/api/orders'); } catch {}
+    },
+    async startPrep() {
+      if (!this.selectedOrderId) return;
+      this.error = ''; this.status = null;
+      if (this.pollTimer) { clearInterval(this.pollTimer); this.pollTimer = null; }
+      try {
+        this.status = await apiFetch('/api/orders/' + this.selectedOrderId + '/prepare', { method: 'POST' });
+        this.pollTimer = setInterval(async () => {
+          try {
+            this.status = await apiFetch('/api/orders/' + this.selectedOrderId + '/prep-status');
+            if (!this.status.inProgress) { clearInterval(this.pollTimer); this.pollTimer = null; }
+          } catch {}
+        }, 500);
+      } catch (e) { this.error = e.message; }
     }
   };
 }
@@ -772,27 +970,17 @@ function deliverySection() {
 // ---- Search ----
 function searchSection() {
   return {
-    cuisine: '',
-    minRating: '',
-    maxDeliveryTime: '',
-    sortBy: '',
-    results: [],
-    error: '',
-    searched: false,
+    cuisine: '', minRating: '', maxDeliveryTime: '', sortBy: '',
+    results: [], error: '', searched: false,
     async search() {
-      this.error = '';
-      this.searched = true;
+      this.error = ''; this.searched = true;
       const params = new URLSearchParams();
       if (this.cuisine) params.set('cuisine', this.cuisine);
       if (this.minRating) params.set('minRating', this.minRating);
       if (this.maxDeliveryTime) params.set('maxDeliveryTime', this.maxDeliveryTime);
       if (this.sortBy) params.set('sortBy', this.sortBy);
-      try {
-        this.results = await apiFetch('/api/restaurants/search?' + params.toString());
-      } catch (e) {
-        this.results = [];
-        this.error = e.message;
-      }
+      try { this.results = await apiFetch('/api/restaurants/search?' + params.toString()); }
+      catch (e) { this.results = []; this.error = e.message; }
     }
   };
 }
@@ -800,16 +988,24 @@ function searchSection() {
 // ---- Analytics ----
 function analyticsSection() {
   return {
-    data: null,
-    error: '',
+    data: null, error: '',
     async loadAnalytics() {
-      this.error = '';
-      this.data = null;
-      try {
-        this.data = await apiFetch('/api/analytics/summary');
-      } catch (e) {
-        this.error = e.message;
-      }
+      this.error = ''; this.data = null;
+      try { this.data = await apiFetch('/api/analytics/summary'); }
+      catch (e) { this.error = e.message; }
+    }
+  };
+}
+
+// ---- Recommendations ----
+function recommendationsSection() {
+  return {
+    customerId: '', recs: [], error: '',
+    async fetchRecommendations() {
+      if (!this.customerId) { this.recs = []; this.error = ''; return; }
+      this.error = ''; this.recs = [];
+      try { this.recs = await apiFetch('/api/customers/' + this.customerId + '/recommendations'); }
+      catch (e) { this.error = e.message; }
     }
   };
 }

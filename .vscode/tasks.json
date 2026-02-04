@@ -17,6 +17,17 @@
       "problemMatcher": []
     },
     {
+      "label": "Continuous Build",
+      "type": "shell",
+      "command": "./gradlew",
+      "args": ["-t", "classes"],
+      "windows": {
+        "command": "gradlew.bat",
+        "args": ["-t", "classes"]
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "Run All Tests",
       "type": "shell",
       "command": "./gradlew",
@@ -50,6 +61,28 @@
       "problemMatcher": []
     },
     {
+      "label": "Test Level 1C",
+      "type": "shell",
+      "command": "./gradlew",
+      "args": ["test", "--tests", "com.workshop.Level1RestaurantHoursTest"],
+      "windows": {
+        "command": "gradlew.bat",
+        "args": ["test", "--tests", "com.workshop.Level1RestaurantHoursTest"]
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test Level 1D",
+      "type": "shell",
+      "command": "./gradlew",
+      "args": ["test", "--tests", "com.workshop.Level1OrderSummaryTest"],
+      "windows": {
+        "command": "gradlew.bat",
+        "args": ["test", "--tests", "com.workshop.Level1OrderSummaryTest"]
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "Test Level 2A",
       "type": "shell",
       "command": "./gradlew",
@@ -72,6 +105,28 @@
       "problemMatcher": []
     },
     {
+      "label": "Test Level 2C",
+      "type": "shell",
+      "command": "./gradlew",
+      "args": ["test", "--tests", "com.workshop.Level2LoyaltyTest"],
+      "windows": {
+        "command": "gradlew.bat",
+        "args": ["test", "--tests", "com.workshop.Level2LoyaltyTest"]
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test Level 2D",
+      "type": "shell",
+      "command": "./gradlew",
+      "args": ["test", "--tests", "com.workshop.Level2PrepSimulationTest"],
+      "windows": {
+        "command": "gradlew.bat",
+        "args": ["test", "--tests", "com.workshop.Level2PrepSimulationTest"]
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "Test Level 3A",
       "type": "shell",
       "command": "./gradlew",
@@ -90,6 +145,17 @@
       "windows": {
         "command": "gradlew.bat",
         "args": ["test", "--tests", "com.workshop.Level3AnalyticsTest"]
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test Level 3C",
+      "type": "shell",
+      "command": "./gradlew",
+      "args": ["test", "--tests", "com.workshop.Level3RecommendationsTest"],
+      "windows": {
+        "command": "gradlew.bat",
+        "args": ["test", "--tests", "com.workshop.Level3RecommendationsTest"]
       },
       "problemMatcher": []
     }

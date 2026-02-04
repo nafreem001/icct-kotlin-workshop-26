@@ -1,7 +1,14 @@
 package com.workshop
 
+import com.workshop.data.SampleData
 import com.workshop.services.DeliveryService
+import com.workshop.services.findCustomer
+import com.workshop.services.findRestaurant
+import com.workshop.services.roundTo
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
@@ -13,6 +20,7 @@ import kotlin.test.assertTrue
  *   1. Delivery fee is calculated based on distance tiers
  *   2. Null address is handled gracefully
  *   3. Distance calculation produces reasonable results
+ *   4. Extension functions work correctly
  */
 class Level2DeliveryFeeTest {
 
@@ -64,5 +72,31 @@ class Level2DeliveryFeeTest {
         val fee = result.getOrNull()!!
         assertTrue(fee.orderId == "order-2", "Should have correct orderId")
         assertTrue(fee.tier.isNotEmpty(), "Should have a tier label")
+    }
+
+    // Extension function tests
+
+    @Test
+    fun `Order findRestaurant extension returns correct restaurant`() {
+        val order = SampleData.orders.find { it.id == "order-1" }!!
+        val restaurant = order.findRestaurant()
+        assertNotNull(restaurant, "Should find restaurant for order")
+        assertEquals("resto-1", restaurant.id, "Order 1 is from resto-1")
+        assertEquals("Mang Inasal", restaurant.name)
+    }
+
+    @Test
+    fun `Order findCustomer extension returns correct customer`() {
+        val order = SampleData.orders.find { it.id == "order-1" }!!
+        val customer = order.findCustomer()
+        assertNotNull(customer, "Should find customer for order")
+        assertEquals("cust-1", customer.id, "Order 1 belongs to cust-1")
+    }
+
+    @Test
+    fun `Double roundTo extension rounds correctly`() {
+        assertEquals(3.14, 3.14159.roundTo(2), "Should round to 2 decimal places")
+        assertEquals(3.1, 3.14159.roundTo(1), "Should round to 1 decimal place")
+        assertEquals(3.0, 3.14159.roundTo(0), "Should round to 0 decimal places")
     }
 }

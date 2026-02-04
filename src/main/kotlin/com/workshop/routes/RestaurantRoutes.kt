@@ -48,6 +48,34 @@ fun Route.restaurantRoutes() {
             }
         }
 
+        // GET /restaurants/{id}/open?time=14:30
+        // Level 1C: This endpoint has bugs in the hours logic!
+        get("/{id}/open") {
+            val id = call.parameters["id"] ?: return@get call.respond(
+                HttpStatusCode.BadRequest, mapOf("error" to "Missing restaurant ID")
+            )
+            val time = call.request.queryParameters["time"] ?: return@get call.respond(
+                HttpStatusCode.BadRequest, mapOf("error" to "Missing 'time' query parameter (format: HH:mm)")
+            )
+
+            val result = MenuService.isOpenAt(id, time)
+            result.fold(
+                onSuccess = { isOpen ->
+                    call.respond(mapOf(
+                        "restaurantId" to id,
+                        "time" to time,
+                        "isOpen" to isOpen
+                    ))
+                },
+                onFailure = { error ->
+                    call.respond(
+                        HttpStatusCode.NotFound,
+                        mapOf("error" to (error.message ?: "Unknown error"))
+                    )
+                }
+            )
+        }
+
         // GET /restaurants/search?cuisine=Filipino&sortBy=rating&minRating=4.0
         // Level 3A: Students implement SearchService.searchRestaurants()
         get("/search") {
