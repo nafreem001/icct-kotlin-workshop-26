@@ -62,31 +62,8 @@ sealed class OrderStatus {
         override val displayName = "Cancelled"
     }
 
-    // =====================================================
-    // LEVEL 2A EXERCISE: Implement canTransitionTo()
-    // =====================================================
-    // TODO: Implement this method to validate status transitions.
-    //
-    // Valid transitions:
-    //   Placed     → Preparing, Cancelled
-    //   Preparing  → OutForDelivery, Cancelled
-    //   OutForDelivery → Delivered, Cancelled
-    //   Delivered  → (no transitions allowed)
-    //   Cancelled  → (no transitions allowed)
-    //
-    // HINT: Use a 'when' expression on 'this' to check the current status,
-    //       then check if 'newStatus' is in the allowed set.
-    //
-    // Example 'when' syntax:
-    //   when (this) {
-    //       is Placed -> ...
-    //       is Preparing -> ...
-    //       ...
-    //   }
-    //
-    // Return true if the transition is valid, false otherwise.
+    // Exercise 2A: Implement this method
     fun canTransitionTo(newStatus: OrderStatus): Boolean {
-        // TODO: Replace this with your implementation
         return false
     }
 }

@@ -45,7 +45,7 @@ Then just **edit → save → refresh the browser**. The server auto-reloads wit
 
 **Goal:** Read existing code, find and fix bugs. You will learn about **data classes**, **null safety**, and **collection operations**.
 
-In this level, the code is already written -- but it has bugs. Your job is to read the code carefully, understand what it _should_ do, find the bugs, and fix them.
+In this level, the code is already written -- but it has bugs. Your job is to read the code carefully, understand what it _should_ do, find the bugs, and fix them. Read the tests to understand what the expected behavior is.
 
 ---
 
@@ -57,43 +57,9 @@ In this level, the code is already written -- but it has bugs. Your job is to re
 | **Test** | `./gradlew test --tests "com.workshop.Level1MenuFilterTest"` |
 | **Endpoint** | `GET /api/restaurants/{id}/menu?maxPrice=200&dietary=vegetarian` |
 
-**What it should do:** Return menu items from a restaurant, optionally filtered by a maximum price and/or a dietary tag (e.g., `vegetarian`, `halal`).
+The `filterMenu()` function should return menu items from a restaurant, optionally filtered by a maximum price and/or a dietary tag (e.g., `vegetarian`, `halal`).
 
-**What is broken:** There are **two bugs** in the filtering logic.
-
-#### Bug 1: Price filter is inverted
-
-The price filter currently returns items **above** the max price instead of items **at or below** the max price.
-
-> **Hint:** Look for a comparison operator. The code uses `it.price > maxPrice` -- but it should keep items where the price is less than or equal to the max.
-
-```kotlin
-// BROKEN:
-.filter { it.price > maxPrice }
-
-// FIXED:
-.filter { it.price <= maxPrice }
-```
-
-#### Bug 2: Dietary filter crashes on null tags
-
-Some menu items do not have dietary tags (the field is `null`). The dietary filter does not handle this and will crash with a `NullPointerException`.
-
-> **Hint:** Use the **safe call operator** (`?.`) to avoid calling `.contains()` on a null list. The `== true` pattern is a common Kotlin idiom for safely checking a nullable Boolean.
-
-```kotlin
-// BROKEN:
-.filter { it.dietaryTags.contains(dietary) }
-
-// FIXED:
-.filter { it.dietaryTags?.contains(dietary) == true }
-```
-
-Run the test to verify:
-
-```bash
-./gradlew test --tests "com.workshop.Level1MenuFilterTest"
-```
+It does not work correctly. Read the function, read the tests, and fix it.
 
 ---
 
@@ -105,46 +71,13 @@ Run the test to verify:
 | **Test** | `./gradlew test --tests "com.workshop.Level1OrderTotalTest"` |
 | **Endpoint** | `GET /api/orders/{id}/total` |
 
-**What it should do:** Calculate the total cost of an order by summing up `price x quantity` for each item, then applying a **10% discount** if the subtotal exceeds **₱500**.
-
-**What is broken:** There are **two bugs** in the total calculation.
-
-#### Bug 1: Not multiplying price by quantity
-
-The code sums up unit prices without considering how many of each item were ordered.
-
-> **Hint:** Use `it.price * it.quantity` instead of just `it.price`.
-
-```kotlin
-// BROKEN:
-val subtotal = order.items.sumOf { it.price }
-
-// FIXED:
-val subtotal = order.items.sumOf { it.price * it.quantity }
-```
-
-#### Bug 2: Missing discount for large orders
-
-Orders over ₱500 should receive a 10% discount, but the discount logic is missing.
-
-> **Hint:** After computing the subtotal, check if it exceeds 500 and multiply by `0.9` if so.
-
-```kotlin
-// Add after computing subtotal:
-val total = if (subtotal > 500.0) subtotal * 0.9 else subtotal
-```
-
-Run the test to verify:
-
-```bash
-./gradlew test --tests "com.workshop.Level1OrderTotalTest"
-```
+The `calculateTotal()` function should calculate the total cost of an order. Read the doc comment on the function to understand the business rules, then compare what the code _actually_ does versus what it _should_ do.
 
 ---
 
 ## Level 2: Guided Implementation (Kotlin Features)
 
-**Goal:** Implement new features using **sealed classes**, **`when` expressions**, **extension functions**, and the **Elvis operator**. The function signatures and structure are provided -- you fill in the logic.
+**Goal:** Implement new features using **sealed classes**, **`when` expressions**, and **null safety**. The function signatures are provided -- you fill in the logic.
 
 ---
 
@@ -156,57 +89,14 @@ Run the test to verify:
 | **Test** | `./gradlew test --tests "com.workshop.Level2StatusTransitionTest"` |
 | **Endpoint** | `PUT /api/orders/{id}/status` with JSON body `{ "status": "Preparing" }` |
 
-**What to implement:** An order can only move through certain status transitions. You need to enforce these rules.
+An order goes through a lifecycle: it gets placed, prepared, sent out for delivery, and delivered. It can also be cancelled. But not every transition makes sense -- you should not be able to go from `Delivered` back to `Placed`, for example.
 
-#### Valid Status Transitions
+**Your task:** Look at the `OrderStatus` sealed class and its subclasses. Then:
 
-| Current Status | Can Transition To |
-|---|---|
-| `Placed` | `Preparing`, `Cancelled` |
-| `Preparing` | `OutForDelivery`, `Cancelled` |
-| `OutForDelivery` | `Delivered`, `Cancelled` |
-| `Delivered` | _(none -- final state)_ |
-| `Cancelled` | _(none -- final state)_ |
+1. Implement `canTransitionTo()` in `OrderStatus.kt` -- decide which transitions are valid
+2. Implement `updateOrderStatus()` in `OrderService.kt` -- parse the status string, validate the transition, and update the order
 
-#### Part 1: Implement `canTransitionTo()` in OrderStatus
-
-Open `OrderStatus.kt` and implement the `canTransitionTo()` method on the sealed class. Use a `when` expression to check if the transition is valid.
-
-```kotlin
-fun canTransitionTo(next: OrderStatus): Boolean = when (this) {
-    is Placed -> next is Preparing || next is Cancelled
-    is Preparing -> next is OutForDelivery || next is Cancelled
-    is OutForDelivery -> next is Delivered || next is Cancelled
-    is Delivered -> false
-    is Cancelled -> false
-}
-```
-
-#### Part 2: Implement `updateOrderStatus()` in OrderService
-
-Open `OrderService.kt` and implement the status update function. You need to:
-
-1. **Parse** the status string into the sealed class using a `when` expression
-2. **Validate** the transition using `canTransitionTo()`
-3. **Update** the order if the transition is valid
-
-```kotlin
-// Parsing a string to the sealed class:
-fun parseStatus(status: String): OrderStatus? = when (status.lowercase()) {
-    "placed" -> OrderStatus.Placed
-    "preparing" -> OrderStatus.Preparing
-    "outfordelivery" -> OrderStatus.OutForDelivery
-    "delivered" -> OrderStatus.Delivered
-    "cancelled" -> OrderStatus.Cancelled
-    else -> null
-}
-```
-
-Run the test to verify:
-
-```bash
-./gradlew test --tests "com.workshop.Level2StatusTransitionTest"
-```
+Read the test file to understand exactly which transitions should be allowed and which should be rejected.
 
 ---
 
@@ -218,50 +108,19 @@ Run the test to verify:
 | **Test** | `./gradlew test --tests "com.workshop.Level2DeliveryFeeTest"` |
 | **Endpoint** | `GET /api/orders/{id}/delivery-fee` |
 
-**What to implement:** Calculate the delivery fee based on the distance between the restaurant and the customer's delivery address.
+Implement `calculateDeliveryFee()`. Given an order, figure out how far the restaurant is from the customer and charge accordingly.
 
-#### Steps
-
-1. **Find the order and customer** from the provided repositories
-2. **Handle a missing address** -- if the customer has no saved delivery address, use a default address. Use the **Elvis operator** (`?:`)
-3. **Calculate the distance** using the provided `calculateDistance()` helper function
-4. **Apply the fee tiers** using a `when` expression
-
-#### Fee Tiers
-
-| Distance | Fee |
-|---|---|
-| 0 -- 2 km | Free (₱0) |
-| 2 -- 5 km | ₱49 |
-| 5 -- 10 km | ₱99 |
-| 10+ km | ₱149 |
-
-#### Hints
-
-```kotlin
-// Elvis operator for default address:
-val address = customer.deliveryAddress ?: defaultAddress
-
-// when expression with ranges:
-val fee = when {
-    distance <= 2.0 -> 0.0
-    distance <= 5.0 -> 49.0
-    distance <= 10.0 -> 99.0
-    else -> 149.0
-}
-```
-
-Run the test to verify:
-
-```bash
-./gradlew test --tests "com.workshop.Level2DeliveryFeeTest"
-```
+Look at:
+- The `DeliveryFeeResult` data class at the bottom of the file to understand what you need to return
+- The `distanceInKm()` helper function already provided
+- `SampleData.kt` for restaurant coordinates and customer data
+- The test file for the exact fee tiers and expected behavior
 
 ---
 
 ## Level 3: Open-Ended (Collections Mastery)
 
-**Goal:** Implement features using Kotlin's powerful **collection operations**. There is no single right answer here -- use whichever combination of collection functions achieves the correct result.
+**Goal:** Implement features using Kotlin's **collection operations**. There is no single right answer -- use whichever approach achieves the correct result. The test files define the expected output.
 
 ---
 
@@ -271,37 +130,9 @@ Run the test to verify:
 |---|---|
 | **File** | `src/main/kotlin/com/workshop/services/SearchService.kt` |
 | **Test** | `./gradlew test --tests "com.workshop.Level3SearchTest"` |
-| **Endpoint** | `GET /api/search?q=burger&sortBy=rating` |
+| **Endpoint** | `GET /api/search?cuisine=Filipino&sortBy=rating&minRating=4.0` |
 
-**What to implement:** Search restaurants by name or cuisine type, then sort results by the requested criteria (rating, delivery time, or name).
-
-#### Useful Collection Functions
-
-- `filter { }` -- keep items matching a condition
-- `sortedBy { }` -- sort ascending by a property
-- `sortedByDescending { }` -- sort descending by a property
-- `lowercase()` -- convert a string to lowercase for case-insensitive matching
-
-#### Example Chain
-
-```kotlin
-restaurants
-    .filter { it.name.lowercase().contains(query.lowercase()) ||
-              it.cuisine.lowercase().contains(query.lowercase()) }
-    .let { results ->
-        when (sortBy) {
-            "rating" -> results.sortedByDescending { it.rating }
-            "deliveryTime" -> results.sortedBy { it.estimatedDeliveryMinutes }
-            else -> results.sortedBy { it.name }
-        }
-    }
-```
-
-Run the test to verify:
-
-```bash
-./gradlew test --tests "com.workshop.Level3SearchTest"
-```
+Implement `searchRestaurants()`. The function takes optional filter and sort parameters. Read the function signature and the tests to understand the requirements.
 
 ---
 
@@ -313,45 +144,7 @@ Run the test to verify:
 | **Test** | `./gradlew test --tests "com.workshop.Level3AnalyticsTest"` |
 | **Endpoint** | `GET /api/analytics/summary` |
 
-**What to implement:** Generate analytics from order data -- total revenue, popular items, busiest restaurants, etc.
-
-#### Useful Collection Functions
-
-| Function | What It Does | Example |
-|---|---|---|
-| `sumOf { }` | Sum a numeric property | `orders.sumOf { it.total }` |
-| `groupBy { }` | Group items by a key | `orders.groupBy { it.restaurantId }` |
-| `flatMap { }` | Flatten nested lists | `orders.flatMap { it.items }` |
-| `mapValues { }` | Transform map values | `grouped.mapValues { it.value.size }` |
-| `take(n)` | Take first N items | `sorted.take(5)` |
-| `associate { }` | Create a map from items | `items.associate { it.name to it.count }` |
-
-#### Example: Top 5 Most Ordered Items
-
-```kotlin
-val topItems = orders
-    .flatMap { it.items }               // Flatten all order items into one list
-    .groupBy { it.menuItemName }        // Group by item name
-    .mapValues { it.value.sumOf { item -> item.quantity } }  // Sum quantities
-    .entries
-    .sortedByDescending { it.value }    // Sort by total quantity
-    .take(5)                            // Take top 5
-    .associate { it.key to it.value }   // Convert back to map
-```
-
-#### Example: Revenue Per Restaurant
-
-```kotlin
-val revenueByRestaurant = orders
-    .groupBy { it.restaurantId }
-    .mapValues { entry -> entry.value.sumOf { it.total } }
-```
-
-Run the test to verify:
-
-```bash
-./gradlew test --tests "com.workshop.Level3AnalyticsTest"
-```
+Implement `getAnalyticsSummary()`. Aggregate order data into a summary. The `AnalyticsSummary` data class at the bottom of the file defines the shape of the response. The tests define the expected values.
 
 ---
 
@@ -371,35 +164,8 @@ Congratulations on making it this far! In this final level, there are no predefi
 
 1. **Create a service** in `src/main/kotlin/com/workshop/services/` with your business logic
 2. **Add a route** in `src/main/kotlin/com/workshop/routes/` to expose your feature as an API endpoint
-3. **Register the route** in the main application routing configuration
+3. **Register the route** in `Application.kt` under the `/api` route block
 4. _(Optional)_ **Write tests** in `src/test/kotlin/com/workshop/` to verify your logic
-
-### Example Skeleton
-
-```kotlin
-// src/main/kotlin/com/workshop/services/PromoService.kt
-class PromoService {
-    private val promoCodes = mapOf(
-        "WELCOME20" to 0.20,
-        "SAVE10" to 0.10
-    )
-
-    fun applyPromo(code: String, subtotal: Double): Double {
-        val discount = promoCodes[code.uppercase()] ?: return subtotal
-        return subtotal * (1 - discount)
-    }
-}
-```
-
-```kotlin
-// In your routes file:
-get("/api/orders/{id}/apply-promo") {
-    val orderId = call.parameters["id"] ?: return@get call.respond(HttpStatusCode.BadRequest)
-    val code = call.request.queryParameters["code"] ?: return@get call.respond(HttpStatusCode.BadRequest)
-    val total = promoService.applyPromo(code, orderTotal)
-    call.respond(mapOf("total" to total, "promoApplied" to code))
-}
-```
 
 ---
 
@@ -442,19 +208,10 @@ when (status) {
 }
 
 // As an expression (returns a value):
-val label = when (status) {
-    is OrderStatus.Placed -> "New"
-    is OrderStatus.Preparing -> "Cooking"
-    is OrderStatus.OutForDelivery -> "On the way"
-    is OrderStatus.Delivered -> "Done"
-    is OrderStatus.Cancelled -> "Cancelled"
-}
-
-// With conditions (no argument):
-val fee = when {
-    distance <= 2.0 -> 0.0
-    distance <= 5.0 -> 49.0
-    else -> 99.0
+val label = when {
+    score >= 90 -> "A"
+    score >= 80 -> "B"
+    else -> "C"
 }
 ```
 
@@ -464,32 +221,31 @@ val fee = when {
 val items = listOf("Burger", "Pizza", "Sushi", "Burger", "Ramen")
 
 // filter -- keep matching items
-items.filter { it.length > 4 }               // [Burger, Pizza, Sushi, Burger, Ramen]
+items.filter { it.length > 4 }
 
 // map -- transform each item
-items.map { it.uppercase() }                  // [BURGER, PIZZA, SUSHI, BURGER, RAMEN]
+items.map { it.uppercase() }
 
 // flatMap -- transform and flatten
-orders.flatMap { it.items }                   // All items from all orders in one list
+orders.flatMap { it.items }
 
 // groupBy -- group into a map
-items.groupBy { it }                          // {Burger=[Burger, Burger], Pizza=[Pizza], ...}
+items.groupBy { it }                    // {Burger=[Burger, Burger], Pizza=[Pizza], ...}
 
 // sortedBy / sortedByDescending
-items.sortedBy { it.length }                  // Sort by string length ascending
+items.sortedBy { it.length }
 
 // sumOf -- sum a numeric property
-order.items.sumOf { it.price * it.quantity }  // Total cost
+order.items.sumOf { it.price * it.quantity }
 
 // take -- first N items
-items.take(3)                                 // [Burger, Pizza, Sushi]
+items.take(3)
 
-// any / all / none -- boolean checks
-items.any { it == "Pizza" }                   // true
-items.all { it.length > 3 }                   // true
+// mapValues -- transform map values
+grouped.mapValues { (_, v) -> v.size }
 
 // associate -- create a map
-items.associate { it to it.length }           // {Burger=6, Pizza=5, Sushi=5, Ramen=5}
+items.associate { it to it.length }
 ```
 
 ### String Templates
@@ -498,19 +254,6 @@ items.associate { it to it.length }           // {Burger=6, Pizza=5, Sushi=5, Ra
 val name = "Kotlin"
 println("Hello, $name!")                       // Hello, Kotlin!
 println("Length: ${name.length}")              // Length: 6
-println("Order #${order.id} total: ₱${order.total}")
-```
-
-### Extension Functions
-
-```kotlin
-// Add a method to an existing class:
-fun Double.toPeso(): String = "₱${"%.2f".format(this)}"
-
-// Usage:
-val display = 149.50.toPeso()   // "₱149.50"
-
-fun List<MenuItem>.totalPrice(): Double = sumOf { it.price }
 ```
 
 ---

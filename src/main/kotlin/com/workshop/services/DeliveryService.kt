@@ -6,35 +6,8 @@ import kotlin.math.*
 
 object DeliveryService {
 
-    // =====================================================
-    // LEVEL 2B EXERCISE: Implement calculateDeliveryFee()
-    // =====================================================
-    // TODO: Calculate the delivery fee for an order based on distance.
-    //
-    // Steps:
-    // 1. Find the order by ID (return error if not found)
-    // 2. Find the customer by order.customerId
-    // 3. Check if the customer has an address (customer.address)
-    //    - If address is null, return an error: "Customer has no delivery address on file"
-    //    HINT: Use ?. and ?: (Elvis operator) for null safety
-    // 4. Get the restaurant coordinates from SampleData.restaurantCoordinates
-    // 5. Calculate the distance using the distanceInKm() helper below
-    // 6. Determine the fee based on distance tiers using a 'when' expression:
-    //    - 0 to 2 km:   Free (₱0)
-    //    - 2 to 5 km:   ₱49
-    //    - 5 to 10 km:  ₱99
-    //    - Over 10 km:  ₱149
-    //
-    //    HINT for 'when' with ranges:
-    //      when {
-    //          distance <= 2.0 -> 0.0
-    //          distance <= 5.0 -> 49.0
-    //          ...
-    //      }
-    //
-    // Return type is Result<DeliveryFeeResult>
+    // Exercise 2B: Implement this method
     fun calculateDeliveryFee(orderId: String): Result<DeliveryFeeResult> {
-        // TODO: Replace this with your implementation
         return Result.failure(Exception("Not implemented yet! Complete Exercise 2B to calculate delivery fees."))
     }
 

@@ -23,23 +23,10 @@ object MenuService {
         val restaurant = getRestaurantById(restaurantId) ?: return null
         var items = restaurant.menu.filter { it.isAvailable }
 
-        // =====================================================
-        // LEVEL 1A BUG #1: Price filter is wrong!
-        // The filter should keep items where price <= maxPrice,
-        // but it currently uses > instead of <=
-        // =====================================================
         if (maxPrice != null) {
             items = items.filter { it.price > maxPrice }
         }
 
-        // =====================================================
-        // LEVEL 1A BUG #2: Dietary filter crashes on null!
-        // Some menu items have null dietaryTags.
-        // This code doesn't handle that case and will crash
-        // with a NullPointerException.
-        //
-        // HINT: Use the ?. (safe call) operator or check for null
-        // =====================================================
         if (dietary != null) {
             items = items.filter { it.dietaryTags!!.contains(dietary) }
         }
