@@ -9,12 +9,16 @@ object OrderService {
     fun getOrders(): List<Order> = SampleData.orders
 
     fun getOrderById(id: String): Order? =
-        SampleData.orders.find { it.id == id }
+        SampleData.orders.find {
+            it.id == id
+        }
 
     fun calculateTotal(orderId: String): Double? {
         val order = getOrderById(orderId) ?: return null
 
-        val subtotal = order.items.sumOf { it.unitPrice }
+        val subtotal = order.items.sumOf {
+            it.unitPrice
+        }
         return subtotal
     }
 
@@ -30,7 +34,9 @@ object OrderService {
             )
         }
 
-        val grandTotal = order.items.sumOf { it.unitPrice }
+        val grandTotal = order.items.sumOf {
+            it.unitPrice
+        }
 
         return mapOf(
             "orderId" to orderId,

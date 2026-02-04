@@ -2,11 +2,25 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "java",
+            "type": "kotlin",
             "name": "Attach to Server",
             "request": "attach",
             "hostName": "localhost",
-            "port": 5005
+            "port": 5005,
+            "timeout": 30000,
+            "projectRoot": "${workspaceFolder}"
+        },
+        {
+            "type": "java",
+            "name": "Attach to Server (Java)",
+            "request": "attach",
+            "hostName": "127.0.0.1",
+            "port": 5005,
+            "projectName": "kotlin-workshop",
+            "sourcePaths": [
+                "${workspaceFolder}/src/main/kotlin",
+                "${workspaceFolder}/src/test/kotlin"
+            ]
         }
     ]
 }

@@ -18,8 +18,9 @@ object RecommendationService {
     // 4. Optionally: look at what similar customers ordered (customers who ordered the same items)
     // 5. Return up to `limit` recommendations
     fun getRecommendations(customerId: String, limit: Int = 5): List<RecommendedItem> {
-        SampleData.customers.find { it.id == customerId }
-            ?: return emptyList()
+        SampleData.customers.find {
+            it.id == customerId
+        } ?: return emptyList()
 
         return emptyList()
     }

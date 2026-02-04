@@ -5,5 +5,9 @@
   "files.eol": "\n",
   "editor.formatOnSave": true,
   "kotlin.languageServer.enabled": true,
-  "kotlin.compiler.jvm.target": "21"
+  "kotlin.compiler.jvm.target": "21",
+  "[kotlin]": {
+    "editor.defaultFormatter": "rnoro.vscode-ktlint-formatter"
+  },
+  "java.configuration.updateBuildConfiguration": "interactive"
 }

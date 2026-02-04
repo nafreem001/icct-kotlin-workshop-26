@@ -32,6 +32,7 @@ When you open the project in VS Code, you will be prompted to install recommende
 
 - **Kotlin Language** (`fwcd.kotlin`) -- syntax highlighting, code completion, and diagnostics
 - **Java Extension Pack** (`vscjava.vscode-java-pack`) -- debugging, testing, and project management
+- **Kotlin Ktlint Formatter** (`rnoro.vscode-ktlint-formatter`) -- code formatting that preserves multi-line lambdas
 
 ## Step-by-Step Setup
 

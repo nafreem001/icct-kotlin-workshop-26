@@ -15,7 +15,9 @@ fun Route.restaurantRoutes() {
 
         // GET /restaurants - List all restaurants (without full menus)
         get {
-            val restaurants = MenuService.getRestaurants().map { it.copy(menu = emptyList()) }
+            val restaurants = MenuService.getRestaurants().map {
+                it.copy(menu = emptyList())
+            }
             call.respond(restaurants)
         }
 
@@ -90,7 +92,9 @@ fun Route.restaurantRoutes() {
                 maxDeliveryTime = maxDeliveryTime,
                 sortBy = sortBy
             )
-            call.respond(results.map { it.copy(menu = emptyList()) })
+            call.respond(results.map {
+                it.copy(menu = emptyList())
+            })
         }
     }
 }

@@ -11,7 +11,9 @@ object LoyaltyService {
     // Look at LoyaltyTier.kt to see the available tiers and their properties.
     // Look at the test file to understand the tier thresholds.
     fun calculateTier(customerId: String): LoyaltyTier? {
-        SampleData.customers.find { it.id == customerId } ?: return null
+        SampleData.customers.find {
+            it.id == customerId
+        } ?: return null
 
         // TODO: 1. Get all orders for this customer from SampleData.orders
         // TODO: 2. Calculate the order count and total spend
@@ -22,7 +24,9 @@ object LoyaltyService {
     // Exercise 2C: Implement this method
     // Return a LoyaltyInfo object with the customer's name, tier, order count, total spend, and discount.
     fun getLoyaltyInfo(customerId: String): LoyaltyInfo? {
-        val customer = SampleData.customers.find { it.id == customerId } ?: return null
+        val customer = SampleData.customers.find {
+            it.id == customerId
+        } ?: return null
 
         // TODO: 1. Call calculateTier() to get the tier
         // TODO: 2. Calculate order count and total spend

@@ -44,14 +44,17 @@ object PrepService {
     // Key concept: launch {} runs concurrently. If you have 6 items each with 500ms delay,
     // they should all complete in ~500ms total (not 3000ms sequentially).
     fun startPreparation(orderId: String, scope: CoroutineScope): Result<PrepProgress> {
-        val order = SampleData.orders.find { it.id == orderId }
-            ?: return Result.failure(Exception("Order not found: $orderId"))
+        val order = SampleData.orders.find {
+            it.id == orderId
+        } ?: return Result.failure(Exception("Order not found: $orderId"))
 
         if (activePreps.containsKey(orderId)) {
             return Result.success(getPrepStatus(orderId)!!)
         }
 
-        val totalItems = order.items.sumOf { it.quantity }
+        val totalItems = order.items.sumOf {
+            it.quantity
+        }
         val state = PrepState(totalItems = totalItems)
         activePreps[orderId] = state
 
